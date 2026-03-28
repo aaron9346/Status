@@ -1,0 +1,2097 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NTE Job Tracker</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f1f5f9;--surface:#fff;--header:#0f172a;
+  --accent:#f97316;--accent-d:#ea580c;
+  --text:#1e293b;--muted:#64748b;--border:#e2e8f0;--r:8px;
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  background:var(--bg);color:var(--text);min-height:100vh}
+
+/* ── LOGIN ─────────────────────────── */
+#loginScreen{min-height:100vh;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(135deg,#0f172a 0%,#1e3a5f 50%,#0f172a 100%)}
+.login-card{background:#fff;padding:44px 40px;border-radius:20px;width:100%;max-width:420px;
+  box-shadow:0 30px 60px rgba(0,0,0,.35)}
+.login-logo{text-align:center;margin-bottom:36px}
+.login-logo h1{font-size:30px;font-weight:900;color:#0f172a;letter-spacing:-1px}
+.login-logo h1 span{color:#f97316}
+.login-logo p{color:#64748b;font-size:13px;margin-top:6px}
+.login-divider{border:none;border-top:1px solid #f1f5f9;margin:20px 0}
+
+/* ── FORMS ─────────────────────────── */
+.fg{margin-bottom:16px}
+.fg label{display:block;font-size:12px;font-weight:700;color:#374151;margin-bottom:6px;
+  text-transform:uppercase;letter-spacing:.04em}
+.fg select,.fg input,.fg textarea{width:100%;padding:10px 14px;
+  border:1.5px solid #e5e7eb;border-radius:8px;font-size:14px;color:#1e293b;
+  background:#fff;transition:border-color .2s,box-shadow .2s}
+.fg select:focus,.fg input:focus,.fg textarea:focus{outline:none;border-color:#f97316;
+  box-shadow:0 0 0 3px rgba(249,115,22,.1)}
+.fg textarea{resize:vertical;min-height:70px}
+.err-msg{background:#fef2f2;color:#dc2626;padding:10px 14px;border-radius:6px;font-size:13px;
+  margin-top:10px;display:none;border:1px solid #fecaca}
+
+/* ── BUTTONS ────────────────────────── */
+.btn{padding:9px 18px;border-radius:8px;border:none;cursor:pointer;font-size:13px;font-weight:600;
+  transition:all .2s;display:inline-flex;align-items:center;gap:6px}
+.btn-primary{background:#f97316;color:#fff}.btn-primary:hover{background:#ea580c;transform:translateY(-1px)}
+.btn-secondary{background:#f1f5f9;color:#374151}.btn-secondary:hover{background:#e2e8f0}
+.btn-danger{background:#ef4444;color:#fff}.btn-danger:hover{background:#dc2626}
+.btn-ghost{background:transparent;color:#64748b;border:1.5px solid #e2e8f0}
+.btn-ghost:hover{background:#f8fafc;color:#0f172a}
+.btn-full{width:100%;justify-content:center;padding:12px}
+.btn-sm{padding:5px 12px;font-size:11px;border-radius:6px}
+
+/* ── HEADER ─────────────────────────── */
+#mainApp{display:none;min-height:100vh}
+.hdr{background:#0f172a;color:#fff;padding:0 20px;display:flex;align-items:center;
+  height:58px;position:sticky;top:0;z-index:200;box-shadow:0 2px 12px rgba(0,0,0,.3)}
+.hdr-logo{font-size:19px;font-weight:900;margin-right:28px;white-space:nowrap;letter-spacing:-.5px}
+.hdr-logo span{color:#f97316}
+.hdr-search{flex:1;max-width:380px}
+.srch-wrap{position:relative}
+.srch-icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:14px;opacity:.5}
+.hdr-search input{width:100%;padding:8px 14px 8px 34px;background:rgba(255,255,255,.1);
+  border:1px solid rgba(255,255,255,.2);border-radius:8px;color:#fff;font-size:13px}
+.hdr-search input::placeholder{color:rgba(255,255,255,.45)}
+.hdr-search input:focus{outline:none;border-color:#f97316;background:rgba(255,255,255,.15)}
+.hdr-right{margin-left:auto;display:flex;align-items:center;gap:8px}
+.role-badge{background:rgba(249,115,22,.2);color:#fb923c;padding:4px 12px;border-radius:20px;
+  font-size:11px;font-weight:700;border:1px solid rgba(249,115,22,.3);text-transform:uppercase}
+.hdr-btn{background:rgba(255,255,255,.08);color:#fff;padding:6px 12px;border-radius:6px;
+  border:1px solid rgba(255,255,255,.18);cursor:pointer;font-size:12px;font-weight:600;
+  display:flex;align-items:center;gap:5px;white-space:nowrap}
+.hdr-btn:hover{background:rgba(255,255,255,.18)}
+.logout-btn{background:rgba(255,255,255,.08);color:#fff;padding:6px 14px;border-radius:6px;
+  border:1px solid rgba(255,255,255,.18);cursor:pointer;font-size:12px;font-weight:600}
+.logout-btn:hover{background:rgba(255,255,255,.15)}
+
+/* ── ALERTS ─────────────────────────── */
+#alertsBar{background:#7f1d1d;color:#fef2f2;padding:9px 20px;display:none;
+  align-items:center;gap:10px;font-size:13px;font-weight:500}
+#alertsBar .ac{background:#ef4444;padding:1px 8px;border-radius:12px;font-weight:800;font-size:11px}
+
+/* ── CONTENT ─────────────────────────── */
+.content{padding:18px 20px;max-width:1700px;margin:0 auto}
+
+/* ── STATS ─────────────────────────── */
+.stats-row{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:16px}
+.sc{background:#fff;border-radius:var(--r);padding:14px 16px;border-left:4px solid;
+  box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.sc .lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#64748b;margin-bottom:5px}
+.sc .val{font-size:26px;font-weight:900;color:#0f172a;line-height:1}
+.sc .sub{font-size:10px;color:#94a3b8;margin-top:3px}
+.sc-rcv{border-color:#94a3b8}.sc-wip{border-color:#3b82f6}.sc-qc{border-color:#f59e0b}
+.sc-rdy{border-color:#22c55e}.sc-over{border-color:#ef4444;background:#fef2f2}.sc-disp{border-color:#06b6d4}
+
+/* ── CONTROLS ─────────────────────────── */
+.ctrl-bar{background:#fff;border-radius:var(--r);padding:10px 14px;margin-bottom:14px;
+  display:flex;gap:8px;align-items:center;flex-wrap:wrap;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+.ctrl-bar select{padding:7px 10px;border:1.5px solid #e5e7eb;border-radius:6px;
+  font-size:12px;color:#374151;background:#fff;cursor:pointer}
+.ctrl-bar select:focus{outline:none;border-color:#f97316}
+.cb-label{display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer;color:#374151;font-weight:600}
+.view-toggle{margin-left:auto;display:flex;background:#f1f5f9;border-radius:8px;padding:3px;gap:2px}
+.vbtn{padding:6px 14px;border-radius:6px;border:none;cursor:pointer;font-size:12px;font-weight:600;
+  background:transparent;color:#64748b;transition:all .2s}
+.vbtn.active{background:#fff;color:#0f172a;box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.add-btn{background:#f97316;color:#fff;padding:7px 14px;border-radius:8px;border:none;
+  cursor:pointer;font-size:12px;font-weight:700;display:flex;align-items:center;gap:5px}
+.add-btn:hover{background:#ea580c}
+
+/* ── KANBAN ─────────────────────────── */
+#kanbanView{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;align-items:start}
+.kcol{background:#f8fafc;border-radius:10px;padding:10px;min-height:200px;border:1px solid var(--border)}
+.kcol-hdr{display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:10px;padding-bottom:8px;border-bottom:2px solid}
+.kcol-ttl{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;
+  display:flex;align-items:center;gap:5px}
+.kcnt{background:rgba(0,0,0,.08);padding:1px 7px;border-radius:10px;font-size:10px;font-weight:800}
+.col-rcv .kcol-hdr{border-color:#94a3b8;color:#475569}
+.col-wip .kcol-hdr{border-color:#3b82f6;color:#2563eb}
+.col-qc  .kcol-hdr{border-color:#f59e0b;color:#d97706}
+.col-rdy .kcol-hdr{border-color:#22c55e;color:#16a34a}
+.col-dsp .kcol-hdr{border-color:#06b6d4;color:#0891b2}
+
+/* ── CARDS ─────────────────────────── */
+.jcard{background:#fff;border-radius:8px;padding:11px;margin-bottom:7px;
+  border:1px solid var(--border);cursor:pointer;transition:all .15s}
+.jcard:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(0,0,0,.1);border-color:#f97316}
+.jcard.overdue{border-left:3px solid #ef4444}
+.jcard.vurgent{border-left:3px solid #dc2626;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(220,38,38,.2)}50%{box-shadow:0 0 0 4px rgba(220,38,38,.08)}}
+.cid{font-size:9px;color:#94a3b8;font-weight:600;margin-bottom:3px}
+.cdesc{font-size:12px;font-weight:700;color:#0f172a;margin-bottom:4px;line-height:1.3}
+.cco{font-size:11px;color:#64748b;margin-bottom:6px}
+.cbadges{display:flex;gap:3px;flex-wrap:wrap;margin-bottom:6px}
+.bdg{font-size:9px;font-weight:800;padding:2px 6px;border-radius:4px;text-transform:uppercase}
+.b-mat{background:#dbeafe;color:#1d4ed8}.b-lab{background:#f0fdf4;color:#15803d}
+.b-vu{background:#fef2f2;color:#dc2626}.b-u{background:#fff7ed;color:#ea580c}
+.b-ov{background:#fef2f2;color:#dc2626;border:1px solid #fecaca}
+.b-drw{background:#f5f3ff;color:#7c3aed}
+.cmeta{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:6px}
+.cdod{font-size:10px;color:#64748b}.cdod.late{color:#ef4444;font-weight:800}
+.cqty{font-size:10px;color:#64748b;background:#f1f5f9;padding:1px 6px;border-radius:4px}
+.cftr{display:flex;justify-content:space-between;align-items:center}
+.csup{font-size:10px;color:#64748b}
+
+/* ── MINI STAGE BAR ─────────────────── */
+.mini-stage-bar{display:flex;gap:3px;flex-wrap:wrap;margin:5px 0;align-items:center}
+.msb{font-size:9px;font-weight:800;padding:2px 6px;border-radius:4px;white-space:nowrap;border:1px solid transparent}
+.msb-done{background:#dcfce7;color:#15803d;border-color:#86efac}
+.msb-cur{background:#f97316;color:#fff;border-color:#ea580c;box-shadow:0 0 0 2px rgba(249,115,22,.25)}
+.msb-arrow{color:#cbd5e1;font-size:8px;margin:0 1px}
+
+/* ── TABLE ─────────────────────────── */
+#tableView{display:none}
+.tbl-wrap{background:#fff;border-radius:var(--r);overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+table{width:100%;border-collapse:collapse;font-size:12px}
+thead th{background:#0f172a;color:#fff;padding:11px 14px;text-align:left;
+  font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;white-space:nowrap}
+tbody tr{border-bottom:1px solid #f1f5f9;transition:background .1s;cursor:pointer}
+tbody tr:hover{background:#fafafa}
+tbody tr.row-over{background:#fef2f2}
+tbody tr.row-vu{background:#fff8f8}
+tbody td{padding:9px 14px;color:#374151}
+.stt{display:inline-flex;align-items:center;padding:3px 9px;border-radius:12px;
+  font-size:10px;font-weight:800;text-transform:uppercase;white-space:nowrap}
+.stt-RECEIVED{background:#f1f5f9;color:#475569}.stt-INPROGRESS{background:#dbeafe;color:#1d4ed8}
+.stt-QC{background:#fef3c7;color:#d97706}.stt-READY{background:#dcfce7;color:#16a34a}
+.stt-DISPATCHED{background:#cffafe;color:#0891b2}
+
+/* ── MODAL ─────────────────────────── */
+.ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:1000;
+  align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto;padding-top:40px}
+.ov.on{display:flex}
+.modal{background:#fff;border-radius:16px;width:100%;max-width:720px;
+  box-shadow:0 30px 60px rgba(0,0,0,.3)}
+.mhdr{padding:18px 22px;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;
+  justify-content:space-between;position:sticky;top:0;background:#fff;z-index:10;
+  border-radius:16px 16px 0 0}
+.mhdr h2{font-size:17px;font-weight:800}
+.mcls{background:none;border:none;font-size:24px;cursor:pointer;color:#64748b;
+  line-height:1;padding:4px;border-radius:6px}
+.mcls:hover{background:#f1f5f9;color:#0f172a}
+.mbody{padding:22px}
+.mftr{padding:14px 22px;border-top:1px solid #f1f5f9;display:flex;gap:8px;
+  justify-content:flex-end;align-items:center}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.sec-ttl{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;
+  color:#94a3b8;margin:18px 0 10px;padding-bottom:6px;border-bottom:1px solid #f1f5f9}
+
+/* ── STAGES GRID (modal) ─────────────── */
+.stage-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:6px}
+.sg-item{display:flex;align-items:center;gap:5px;padding:6px 9px;background:#f8fafc;
+  border-radius:6px;border:1.5px solid #e2e8f0;cursor:pointer;font-size:11px;font-weight:700}
+.sg-item:hover{border-color:#93c5fd;background:#eff6ff}
+.sg-item.checked{background:#eff6ff;border-color:#93c5fd;color:#1d4ed8}
+.sg-item input{cursor:pointer;accent-color:#3b82f6}
+
+/* ── DRAWING UPLOAD ──────────────────── */
+.drw-zone{border:2px dashed #e2e8f0;border-radius:10px;padding:18px;text-align:center;
+  cursor:pointer;transition:all .2s;background:#fafafa}
+.drw-zone:hover,.drw-zone.drag{border-color:#f97316;background:#fff7ed}
+.drw-zone p{font-size:12px;color:#64748b;margin-top:6px}
+.drw-zone .dz-icon{font-size:28px}
+.drw-existing{background:#f0fdf4;border:1px solid #86efac;border-radius:8px;
+  padding:10px 14px;display:flex;align-items:center;gap:10px;margin-top:8px}
+.drw-existing-name{flex:1;font-size:12px;font-weight:700;color:#15803d}
+.drw-existing-btns{display:flex;gap:6px}
+.drw-upload-progress{background:#f1f5f9;border-radius:8px;padding:10px 14px;
+  display:none;align-items:center;gap:10px;margin-top:8px}
+.drw-progress-bar{flex:1;height:6px;background:#e2e8f0;border-radius:3px;overflow:hidden}
+.drw-progress-fill{height:100%;background:#f97316;border-radius:3px;transition:width .3s}
+
+/* ── DETAIL PANEL ────────────────────── */
+#detailPanel{position:fixed;right:-520px;top:0;width:500px;height:100vh;
+  background:#fff;z-index:300;box-shadow:-8px 0 30px rgba(0,0,0,.15);
+  transition:right .3s ease;overflow-y:auto;display:flex;flex-direction:column}
+#detailPanel.open{right:0}
+.dp-hdr{background:#0f172a;color:#fff;padding:18px 20px;position:sticky;top:0;z-index:10}
+.dp-hdr h3{font-size:15px;font-weight:800;padding-right:40px;line-height:1.3}
+.dp-hdr p{font-size:11px;color:rgba(255,255,255,.55);margin-top:4px}
+.dp-cls{position:absolute;top:14px;right:14px;background:rgba(255,255,255,.1);border:none;
+  color:#fff;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:18px;
+  display:flex;align-items:center;justify-content:center}
+.dp-cls:hover{background:rgba(255,255,255,.2)}
+.dp-body{padding:18px;flex:1}
+.dp-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.dp-sec{margin-bottom:4px}
+.dp-lbl{font-size:10px;font-weight:700;text-transform:uppercase;color:#94a3b8;
+  letter-spacing:.05em;margin-bottom:3px}
+.dp-val{font-size:13px;color:#1e293b;font-weight:500}
+.dp-divider{border:none;border-top:1px solid #f1f5f9;margin:14px 0}
+
+/* ── DRAWING SECTION (detail panel) ─────── */
+.drw-card{background:#f5f3ff;border:1.5px solid #c4b5fd;border-radius:10px;padding:13px;margin-top:6px}
+.drw-card-top{display:flex;align-items:center;gap:10px}
+.drw-icon{font-size:24px}
+.drw-info{flex:1}
+.drw-fname{font-size:12px;font-weight:800;color:#5b21b6}
+.drw-hint{font-size:10px;color:#7c3aed;margin-top:2px}
+.drw-btns{display:flex;gap:6px;margin-top:10px}
+.drw-btn{padding:6px 12px;border-radius:7px;border:none;cursor:pointer;font-size:11px;
+  font-weight:700;transition:all .2s;display:flex;align-items:center;gap:5px}
+.drw-preview-btn{background:#7c3aed;color:#fff}.drw-preview-btn:hover{background:#6d28d9}
+.drw-change-btn{background:#f1f5f9;color:#374151;border:1px solid #e2e8f0}
+.drw-change-btn:hover{background:#e2e8f0}
+.drw-remove-btn{background:#fef2f2;color:#dc2626;border:1px solid #fecaca}
+.drw-remove-btn:hover{background:#fee2e2}
+.no-drawing{background:#f8fafc;border:1.5px dashed #e2e8f0;border-radius:10px;
+  padding:14px;text-align:center;margin-top:6px}
+.no-drawing p{font-size:11px;color:#94a3b8;margin-bottom:8px}
+
+/* ── STAGE STEPPER ─────────────────── */
+.stage-stepper{display:flex;flex-direction:column;gap:4px;margin-top:8px}
+.sstep{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:8px;
+  border:1.5px solid #e2e8f0;cursor:pointer;transition:all .2s;background:#fff}
+.sstep:hover{border-color:#f97316;background:#fff7ed}
+.sstep.done{background:#f0fdf4;border-color:#86efac}
+.sstep.current{background:#fff7ed;border-color:#f97316;box-shadow:0 0 0 3px rgba(249,115,22,.15)}
+.sstep-dot{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;
+  justify-content:center;font-size:11px;font-weight:900;flex-shrink:0;border:2px solid #e2e8f0}
+.sstep.done    .sstep-dot{background:#dcfce7;border-color:#86efac;color:#15803d}
+.sstep.current .sstep-dot{background:#f97316;border-color:#ea580c;color:#fff}
+.sstep-info{flex:1}
+.sstep-code{font-size:12px;font-weight:800;color:#0f172a}
+.sstep-name{font-size:10px;color:#64748b}
+.sstep-date{font-size:9px;color:#94a3b8;margin-left:auto}
+.sstep.current .sstep-code{color:#f97316}
+.sstep.done    .sstep-code{color:#15803d}
+.set-stage-hint{font-size:10px;color:#94a3b8;margin-bottom:6px;background:#f8fafc;
+  padding:6px 10px;border-radius:6px;border:1px dashed #e2e8f0}
+
+/* ── STATUS BUTTONS ─────────────────── */
+.status-btns{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.stbtn{padding:7px 12px;border-radius:7px;border:2px solid;cursor:pointer;
+  font-size:11px;font-weight:800;transition:all .2s;text-transform:uppercase}
+.stbtn:not(.on){opacity:.4}.stbtn:hover{opacity:1}
+.stbtn-rcv{border-color:#94a3b8;color:#475569}.stbtn-rcv.on{background:#f1f5f9}
+.stbtn-wip{border-color:#3b82f6;color:#2563eb}.stbtn-wip.on{background:#dbeafe}
+.stbtn-qc{border-color:#f59e0b;color:#d97706}.stbtn-qc.on{background:#fef3c7}
+.stbtn-rdy{border-color:#22c55e;color:#16a34a}.stbtn-rdy.on{background:#dcfce7}
+.stbtn-dsp{border-color:#06b6d4;color:#0891b2}.stbtn-dsp.on{background:#cffafe}
+
+/* ── CUSTOMER MASTER ─────────────────── */
+.cm-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;margin-top:12px}
+.cm-card{background:#fff;border:1.5px solid #e2e8f0;border-radius:10px;padding:14px;
+  transition:all .2s}
+.cm-card:hover{border-color:#f97316;box-shadow:0 4px 12px rgba(0,0,0,.08)}
+.cm-card.inactive{opacity:.5;border-style:dashed}
+.cm-name{font-size:14px;font-weight:800;color:#0f172a;margin-bottom:6px}
+.cm-detail{font-size:11px;color:#64748b;margin-bottom:3px;display:flex;align-items:center;gap:5px}
+.cm-actions{display:flex;gap:6px;margin-top:10px;padding-top:10px;border-top:1px solid #f1f5f9}
+.cm-act-btn{padding:5px 10px;border-radius:6px;border:1px solid;cursor:pointer;
+  font-size:10px;font-weight:700;transition:all .15s}
+.cm-edit-btn{border-color:#93c5fd;color:#2563eb;background:#eff6ff}
+.cm-edit-btn:hover{background:#dbeafe}
+.cm-deact-btn{border-color:#fca5a5;color:#dc2626;background:#fef2f2}
+.cm-deact-btn:hover{background:#fee2e2}
+.cm-act-restore{border-color:#86efac;color:#16a34a;background:#f0fdf4}
+.cm-act-restore:hover{background:#dcfce7}
+.badge-active{background:#dcfce7;color:#15803d;padding:2px 7px;border-radius:10px;font-size:9px;font-weight:800}
+.badge-inactive{background:#f1f5f9;color:#94a3b8;padding:2px 7px;border-radius:10px;font-size:9px;font-weight:800}
+
+/* ── PROCESS MASTER ─────────────────── */
+.pm-table{width:100%;border-collapse:collapse;font-size:13px;margin-top:10px}
+.pm-table th{background:#f8fafc;padding:9px 12px;text-align:left;font-size:10px;
+  font-weight:800;text-transform:uppercase;color:#64748b;border-bottom:1px solid #e2e8f0}
+.pm-table td{padding:9px 12px;border-bottom:1px solid #f1f5f9;vertical-align:middle}
+.pm-table tr:hover td{background:#fafafa}
+.pm-inactive td{opacity:.45}
+.pm-code{font-weight:800;font-size:12px;color:#0f172a;font-family:monospace}
+.pm-act-btns{display:flex;gap:4px}
+.pm-act-btn{padding:4px 9px;border-radius:5px;border:1px solid;cursor:pointer;font-size:10px;font-weight:700}
+.pm-edit-btn{border-color:#93c5fd;color:#2563eb;background:#eff6ff}
+.pm-edit-btn:hover{background:#dbeafe}
+.pm-del-btn{border-color:#fca5a5;color:#dc2626;background:#fef2f2}
+.pm-del-btn:hover{background:#fee2e2}
+.pm-restore-btn{border-color:#86efac;color:#16a34a;background:#f0fdf4}
+.pm-edit-row{background:#fffbeb}
+.pm-edit-row td{padding:6px 8px}
+.pm-edit-inp{padding:6px 9px;border:1.5px solid #f97316;border-radius:6px;font-size:12px;width:100%;background:#fff}
+
+/* ── CLOUDINARY SETUP ─────────────────── */
+.cld-setup{background:#f0f9ff;border:1.5px solid #bae6fd;border-radius:10px;padding:16px;margin-bottom:16px}
+.cld-setup h4{font-size:13px;font-weight:800;color:#0369a1;margin-bottom:6px}
+.cld-setup p{font-size:11px;color:#0369a1;line-height:1.6;margin-bottom:10px}
+.cld-setup a{color:#0369a1;font-weight:700}
+
+/* ── MISC ─────────────────────────── */
+.empty{text-align:center;padding:32px 16px;color:#94a3b8}
+.empty .ei{font-size:28px;margin-bottom:6px}
+.loading-ov{display:none;position:fixed;inset:0;background:rgba(255,255,255,.8);
+  z-index:2000;align-items:center;justify-content:center}
+.loading-ov.on{display:flex}
+.spin{width:38px;height:38px;border:4px solid #f1f5f9;border-top-color:#f97316;
+  border-radius:50%;animation:sp .8s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+#toast{position:fixed;bottom:22px;right:22px;background:#0f172a;color:#fff;
+  padding:11px 18px;border-radius:10px;font-size:13px;font-weight:500;z-index:3000;
+  transform:translateY(120px);opacity:0;transition:all .3s;display:flex;align-items:center;gap:7px;max-width:360px}
+#toast.show{transform:translateY(0);opacity:1}
+#toast.ok{background:#16a34a}#toast.err{background:#dc2626}
+@media(max-width:1300px){.stats-row{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:1000px){#kanbanView{grid-template-columns:repeat(2,1fr)}.stats-row{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:700px){#kanbanView{grid-template-columns:1fr}.stats-row{grid-template-columns:repeat(2,1fr)}
+  .row2,.row3{grid-template-columns:1fr}#detailPanel{width:100%;right:-100%}.stage-grid{grid-template-columns:repeat(3,1fr)}}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+</head>
+<body>
+
+<!-- ════ LOGIN ════ -->
+<div id="loginScreen">
+  <div class="login-card">
+    <div class="login-logo">
+      <h1><span>NTE</span> Job Tracker</h1>
+      <p>New Tech Engineers · Pimpri, Pune</p>
+    </div>
+    <div class="fg"><label>Login As</label>
+      <select id="lRole">
+        <option value="admin">🏢 Admin / Office Staff</option>
+        <option value="supervisor">🔧 Shop Floor Supervisor</option>
+        <option value="customer">👁 Customer (View Only)</option>
+      </select>
+    </div>
+    <div class="fg"><label>Password</label>
+      <input type="password" id="lPass" placeholder="Enter password"
+        onkeydown="if(event.key==='Enter')login()">
+    </div>
+    <div id="lErr" class="err-msg">❌ Invalid credentials. Please try again.</div>
+    <button class="btn btn-primary btn-full" style="margin-top:14px" onclick="login()">Sign In →</button>
+    <hr class="login-divider">
+    <p style="font-size:10px;color:#94a3b8;text-align:center;line-height:1.7">
+      Admin: <b>NTE@2026</b> · Supervisor: <b>floor@123</b> · Customer: <b>view@123</b>
+    </p>
+  </div>
+</div>
+
+<!-- ════ MAIN APP ════ -->
+<div id="mainApp">
+  <header class="hdr">
+    <div class="hdr-logo"><span>NTE</span> Tracker</div>
+    <div class="hdr-search">
+      <div class="srch-wrap">
+        <span class="srch-icon">🔍</span>
+        <input type="text" id="srchInp" placeholder="Search jobs, parts, companies…" oninput="onSearch(this.value)">
+      </div>
+    </div>
+    <div class="hdr-right">
+      <button class="hdr-btn" onclick="loadData()">↻ Refresh</button>
+      <button class="hdr-btn" id="cmBtn" onclick="openCM()" style="display:none">🏭 Customers</button>
+      <button class="hdr-btn" id="smBtn" onclick="openSM()" style="display:none">👤 Supervisors</button>
+      <button class="hdr-btn" id="pmBtn" onclick="openPM()" style="display:none">⚙️ Processes</button>
+      <span id="hRole" class="role-badge">Admin</span>
+      <button class="logout-btn" onclick="logout()">Logout</button>
+    </div>
+  </header>
+
+  <div id="alertsBar">
+    🚨 <span class="ac" id="aOvCnt">0</span>
+    <span id="aTxt">overdue jobs need attention</span>
+    <span id="aVU"></span>
+  </div>
+
+  <div class="content">
+    <div class="stats-row">
+      <div class="sc sc-rcv"><div class="lbl">📥 Received</div><div class="val" id="sRcv">0</div><div class="sub">Pending start</div></div>
+      <div class="sc sc-wip"><div class="lbl">⚙️ In Progress</div><div class="val" id="sWip">0</div><div class="sub">On shop floor</div></div>
+      <div class="sc sc-qc"><div class="lbl">🔍 QC</div><div class="val" id="sQC">0</div><div class="sub">Under inspection</div></div>
+      <div class="sc sc-rdy"><div class="lbl">✅ Ready</div><div class="val" id="sRdy">0</div><div class="sub">Awaiting dispatch</div></div>
+      <div class="sc sc-over"><div class="lbl">⚠️ Overdue</div><div class="val" id="sOvr">0</div><div class="sub">Past due date</div></div>
+      <div class="sc sc-disp"><div class="lbl">🚚 Dispatched</div><div class="val" id="sDsp">0</div><div class="sub">Sent to customer</div></div>
+    </div>
+
+    <div class="ctrl-bar">
+      <select id="fCo" onchange="filt()"><option value="">All Companies</option></select>
+      <select id="fSup" onchange="filt()"><option value="">All Supervisors</option></select>
+      <select id="fType" onchange="filt()">
+        <option value="">All Job Types</option>
+        <option value="WITH MATERIAL">📦 With Material</option>
+        <option value="LABOUR">🔧 Labour Only</option>
+      </select>
+      <select id="fPri" onchange="filt()">
+        <option value="">All Priorities</option>
+        <option value="VERY URGENT">⚡ Very Urgent</option>
+        <option value="URGENT">🔶 Urgent</option>
+        <option value="NORMAL">Normal</option>
+      </select>
+      <label class="cb-label"><input type="checkbox" id="fOv" onchange="filt()"> Overdue only</label>
+      <button id="addBtn" class="add-btn" onclick="openModal(null)" style="display:none">+ New Job</button>
+      <div class="view-toggle">
+        <button class="vbtn active" id="vKan" onclick="setView('kanban')">📋 Kanban</button>
+        <button class="vbtn" id="vTbl" onclick="setView('table')">📊 Table</button>
+        <button class="vbtn" id="vPrc" onclick="setView('process')">🔍 Process</button>
+        <button class="vbtn" id="vDsh" onclick="setView('dashboard')">📈 Dashboard</button>
+      </div>
+    </div>
+
+    <!-- Process Tracking Filter Bar -->
+    <div id="ptCtrlBar" style="display:none;background:#fff;border-radius:8px;padding:10px 14px;
+      margin-bottom:14px;gap:8px;align-items:center;flex-wrap:wrap;
+      box-shadow:0 1px 3px rgba(0,0,0,.05);box-sizing:border-box">
+      <select id="ptStage" onchange="renderProcess()"><option value="">All Stages</option></select>
+      <select id="ptSup"   onchange="renderProcess()"><option value="">All Supervisors</option></select>
+      <select id="ptCo"    onchange="renderProcess()"><option value="">All Companies</option></select>
+      <select id="ptStt"   onchange="renderProcess()">
+        <option value="">All Statuses</option>
+        <option value="RECEIVED">📥 Received</option>
+        <option value="IN PROGRESS">⚙️ In Progress</option>
+        <option value="QC">🔍 QC</option>
+        <option value="READY">✅ Ready</option>
+        <option value="DISPATCHED">🚚 Dispatched</option>
+      </select>
+      <label class="cb-label"><input type="checkbox" id="ptOv" onchange="renderProcess()"> Overdue only</label>
+      <span id="ptCount" style="margin-left:auto;font-size:12px;color:#64748b;font-weight:600"></span>
+    </div>
+
+    <!-- Process Tracking View -->
+    <div id="processView" style="display:none">
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr>
+            <th>Job ID</th><th>Company</th><th>Description</th><th>Qty</th>
+            <th>Supervisor</th><th>DOD</th><th>Current Stage</th>
+            <th style="min-width:300px">Assigned Stage Pipeline</th>
+            <th>Status</th>
+          </tr></thead>
+          <tbody id="ptBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Dashboard View -->
+    <div id="dashboardView" style="display:none">
+
+      <!-- Row 1: Upcoming DODs + Recent Dispatches -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
+
+        <!-- Upcoming DODs -->
+        <div style="background:#fff;border-radius:10px;padding:18px;box-shadow:0 1px 3px rgba(0,0,0,.06)">
+          <div style="font-size:12px;font-weight:800;color:#0f172a;margin-bottom:12px;display:flex;align-items:center;gap:6px">
+            📅 Due This Week <span style="background:#fef3c7;color:#d97706;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:800" id="dshDueCount">0</span>
+          </div>
+          <div id="dshDueList" style="display:flex;flex-direction:column;gap:6px;max-height:220px;overflow-y:auto"></div>
+        </div>
+
+        <!-- Supervisor Workload -->
+        <div style="background:#fff;border-radius:10px;padding:18px;box-shadow:0 1px 3px rgba(0,0,0,.06)">
+          <div style="font-size:12px;font-weight:800;color:#0f172a;margin-bottom:12px">👤 Supervisor Workload</div>
+          <div id="dshSupTable"></div>
+        </div>
+      </div>
+
+      <!-- Row 2: Charts -->
+      <div style="display:grid;grid-template-columns:2fr 1fr;gap:14px;margin-bottom:14px">
+
+        <!-- Jobs by Company bar chart -->
+        <div style="background:#fff;border-radius:10px;padding:18px;box-shadow:0 1px 3px rgba(0,0,0,.06)">
+          <div style="font-size:12px;font-weight:800;color:#0f172a;margin-bottom:12px">🏭 Active Jobs by Company</div>
+          <canvas id="chartCompany" height="100"></canvas>
+        </div>
+
+        <!-- Status doughnut -->
+        <div style="background:#fff;border-radius:10px;padding:18px;box-shadow:0 1px 3px rgba(0,0,0,.06);display:flex;flex-direction:column">
+          <div style="font-size:12px;font-weight:800;color:#0f172a;margin-bottom:12px">📊 Jobs by Status</div>
+          <canvas id="chartStatus" style="max-height:200px"></canvas>
+        </div>
+      </div>
+
+      <!-- Row 3: Stage Load Grid -->
+      <div style="background:#fff;border-radius:10px;padding:18px;box-shadow:0 1px 3px rgba(0,0,0,.06);margin-bottom:14px">
+        <div style="font-size:12px;font-weight:800;color:#0f172a;margin-bottom:12px">⚙️ Stage Load — Active Jobs per Stage Right Now</div>
+        <div id="dshStageGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px"></div>
+      </div>
+
+    </div>
+
+    <div id="kanbanView">
+      <div class="kcol col-rcv"><div class="kcol-hdr"><span class="kcol-ttl">📥 Received <span class="kcnt" id="cn-RECEIVED">0</span></span></div><div id="kc-RECEIVED"></div></div>
+      <div class="kcol col-wip"><div class="kcol-hdr"><span class="kcol-ttl">⚙️ In Progress <span class="kcnt" id="cn-INPROGRESS">0</span></span></div><div id="kc-INPROGRESS"></div></div>
+      <div class="kcol col-qc"><div class="kcol-hdr"><span class="kcol-ttl">🔍 QC <span class="kcnt" id="cn-QC">0</span></span></div><div id="kc-QC"></div></div>
+      <div class="kcol col-rdy"><div class="kcol-hdr"><span class="kcol-ttl">✅ Ready <span class="kcnt" id="cn-READY">0</span></span></div><div id="kc-READY"></div></div>
+      <div class="kcol col-dsp"><div class="kcol-hdr"><span class="kcol-ttl">🚚 Dispatched <span class="kcnt" id="cn-DISPATCHED">0</span></span></div><div id="kc-DISPATCHED"></div></div>
+    </div>
+
+    <div id="tableView">
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr>
+            <th>Job ID</th><th>Company</th><th>Description</th><th>Qty</th>
+            <th>Type</th><th>Supervisor</th><th>DOD</th>
+            <th>Stage Progress</th><th>Drw</th><th>Priority</th><th>Status</th><th>Action</th>
+          </tr></thead>
+          <tbody id="tBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════ DETAIL PANEL ════ -->
+<div id="detailPanel">
+  <div class="dp-hdr">
+    <h3 id="dpTitle">Job Details</h3>
+    <p id="dpSub"></p>
+    <button class="dp-cls" onclick="closeDetail()">×</button>
+  </div>
+  <div class="dp-body" id="dpBody"></div>
+</div>
+
+<!-- ════ JOB MODAL ════ -->
+<div class="ov" id="mOv" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="mhdr"><h2 id="mTitle">Add New Job</h2><button class="mcls" onclick="closeModal()">×</button></div>
+    <div class="mbody">
+      <input type="hidden" id="eid">
+      <div class="sec-ttl">Customer & Order</div>
+      <div class="row2">
+        <div class="fg"><label>Company *</label><select id="fmCo"></select></div>
+        <div class="fg"><label>Job Type *</label>
+          <select id="fmType">
+            <option value="WITH MATERIAL">📦 With Material — NTE buys material</option>
+            <option value="LABOUR">🔧 Labour Only — Customer gives material</option>
+          </select>
+        </div>
+      </div>
+      <div class="row2">
+        <div class="fg"><label>PO Number</label><input type="text" id="fmPO"></div>
+        <div class="fg"><label>PO Date</label><input type="date" id="fmPODate"></div>
+      </div>
+      <div class="sec-ttl">Part Details</div>
+      <div class="row2">
+        <div class="fg"><label>Job Card No</label><input type="text" id="fmJC"></div>
+        <div class="fg"><label>Drawing No</label><input type="text" id="fmDrg"></div>
+      </div>
+      <div class="fg"><label>Description / Part Name *</label>
+        <input type="text" id="fmDesc" placeholder="Part name — be specific"></div>
+      <div class="row3">
+        <div class="fg"><label>Quantity *</label><input type="number" id="fmQty" min="1"></div>
+        <div class="fg"><label>Priority</label>
+          <select id="fmPri">
+            <option value="NORMAL">Normal</option>
+            <option value="URGENT">🔶 Urgent</option>
+            <option value="VERY URGENT">⚡ Very Urgent</option>
+          </select>
+        </div>
+        <div class="fg"><label>Supervisor</label>
+          <select id="fmSup"><option value="">Select…</option></select>
+        </div>
+      </div>
+      <div class="sec-ttl">Schedule</div>
+      <div class="row2">
+        <div class="fg"><label>Received Date</label><input type="date" id="fmRcv"></div>
+        <div class="fg"><label>Delivery Date (DOD) *</label><input type="date" id="fmDOD"></div>
+      </div>
+      <div class="sec-ttl">Process Stages — tick stages needed for this job</div>
+      <div class="stage-grid" id="sgrid"></div>
+      <div class="sec-ttl">Status & Current Stage</div>
+      <div class="row2">
+        <div class="fg"><label>Status</label>
+          <select id="fmStt">
+            <option value="RECEIVED">📥 Received</option>
+            <option value="IN PROGRESS">⚙️ In Progress</option>
+            <option value="QC">🔍 QC</option>
+            <option value="READY">✅ Ready</option>
+            <option value="DISPATCHED">🚚 Dispatched</option>
+          </select>
+        </div>
+        <div class="fg"><label>Current Stage</label>
+          <select id="fmCurStg"><option value="">Not Started</option></select>
+        </div>
+      </div>
+      <div class="sec-ttl">Dispatch / Billing</div>
+      <div class="row2">
+        <div class="fg"><label>Challan No</label><input type="text" id="fmCH"></div>
+        <div class="fg"><label>Challan Date</label><input type="date" id="fmCHD"></div>
+      </div>
+      <div class="fg"><label>Bill No &amp; Date</label>
+        <input type="text" id="fmBill" placeholder="e.g. BILL-1478-09.03.26"></div>
+      <div class="fg" style="margin-top:4px"><label>Notes / Remarks</label>
+        <textarea id="fmNotes"></textarea></div>
+    </div>
+    <div class="mftr">
+      <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+      <button id="delBtn" class="btn btn-danger" onclick="delJob()" style="display:none">🗑 Delete</button>
+      <button class="btn btn-primary" onclick="saveJob()">💾 Save Job</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════ CUSTOMER MASTER MODAL ════ -->
+<div class="ov" id="cmOv" onclick="if(event.target===this)closeCM()">
+  <div class="modal" style="max-width:900px">
+    <div class="mhdr">
+      <h2>🏭 Customer Master</h2>
+      <button class="mcls" onclick="closeCM()">×</button>
+    </div>
+    <div class="mbody" id="cmBody">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+        <p style="font-size:12px;color:#64748b">Manage all customer companies. Inactive companies are hidden from job dropdowns.</p>
+        <button class="btn btn-primary btn-sm" onclick="openCMEdit(null)">+ Add Company</button>
+      </div>
+      <div class="cm-grid" id="cmGrid"></div>
+    </div>
+    <div class="mftr"><button class="btn btn-secondary" onclick="closeCM()">Close</button></div>
+  </div>
+</div>
+
+<!-- ════ COMPANY EDIT MODAL ════ -->
+<div class="ov" id="ceOv" onclick="if(event.target===this)closeCE()" style="z-index:1100">
+  <div class="modal" style="max-width:520px">
+    <div class="mhdr"><h2 id="ceTitle">Add Company</h2><button class="mcls" onclick="closeCE()">×</button></div>
+    <div class="mbody">
+      <input type="hidden" id="ceOrig">
+      <div class="fg"><label>Company Name *</label><input type="text" id="ceName" placeholder="e.g. ARTECH WELDERS"></div>
+      <div class="row2">
+        <div class="fg"><label>Contact Person</label><input type="text" id="ceContact" placeholder="Name"></div>
+        <div class="fg"><label>Phone</label><input type="tel" id="cePhone" placeholder="+91 98765 43210"></div>
+      </div>
+      <div class="fg"><label>Email</label><input type="email" id="ceEmail" placeholder="contact@company.com"></div>
+      <div class="fg"><label>Address</label><textarea id="ceAddr" style="min-height:60px" placeholder="City, State"></textarea></div>
+      <div class="fg"><label>Status</label>
+        <select id="ceActive">
+          <option value="true">✅ Active</option>
+          <option value="false">⛔ Inactive</option>
+        </select>
+      </div>
+    </div>
+    <div class="mftr">
+      <button class="btn btn-secondary" onclick="closeCE()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveCE()">💾 Save Company</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════ SUPERVISOR MASTER MODAL ════ -->
+<div class="ov" id="smOv" onclick="if(event.target===this)closeSM()">
+  <div class="modal" style="max-width:560px">
+    <div class="mhdr">
+      <h2>👤 Supervisor Master</h2>
+      <button class="mcls" onclick="closeSM()">×</button>
+    </div>
+    <div class="mbody" style="padding:18px">
+      <div style="display:flex;justify-content:flex-end;margin-bottom:12px">
+        <button class="btn btn-primary btn-sm" onclick="smAddRow()">+ Add Supervisor</button>
+      </div>
+      <table class="pm-table">
+        <thead><tr><th>#</th><th>Name</th><th>Role / Notes</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody id="smBody"></tbody>
+      </table>
+    </div>
+    <div class="mftr"><button class="btn btn-secondary" onclick="closeSM()">Close</button></div>
+  </div>
+</div>
+
+<!-- ════ PROCESS MASTER MODAL ════ -->
+<div class="ov" id="pmOv" onclick="if(event.target===this)closePM()">
+  <div class="modal" style="max-width:640px">
+    <div class="mhdr"><h2>⚙️ Process Master</h2><button class="mcls" onclick="closePM()">×</button></div>
+    <div class="mbody" style="padding:18px">
+      <div style="display:flex;justify-content:flex-end;margin-bottom:10px">
+        <button class="btn btn-primary btn-sm" onclick="pmAddRow()">+ Add Stage</button>
+      </div>
+      <table class="pm-table">
+        <thead><tr><th>#</th><th>Code</th><th>Display Name</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody id="pmBody"></tbody>
+      </table>
+    </div>
+    <div class="mftr"><button class="btn btn-secondary" onclick="closePM()">Close</button></div>
+  </div>
+</div>
+
+<!-- ════ CLOUDINARY SETUP MODAL ════ -->
+<div class="ov" id="cldOv" onclick="if(event.target===this)closeCLD()" style="z-index:1200">
+  <div class="modal" style="max-width:520px">
+    <div class="mhdr"><h2>☁️ Cloudinary Setup</h2><button class="mcls" onclick="closeCLD()">×</button></div>
+    <div class="mbody">
+      <div class="cld-setup">
+        <h4>Free Drawing Storage — 25GB</h4>
+        <p>
+          1. Create a free account at <a href="https://cloudinary.com" target="_blank">cloudinary.com</a><br>
+          2. Go to <b>Settings → Upload Presets → Add Upload Preset</b><br>
+          3. ⚠️ <b style="color:#dc2626">IMPORTANT: Set Signing Mode = UNSIGNED</b> (not Signed) → Save<br>
+          4. Copy your <b>Cloud Name</b> from the Dashboard top-left and the <b>Preset Name</b> below
+        </p>
+        <div style="background:#fef2f2;border:1.5px solid #fca5a5;border-radius:8px;padding:10px 12px;font-size:11px;color:#dc2626;font-weight:700">
+          ⚠️ Most upload errors are caused by leaving the preset as "Signed". Make sure it is set to <u>Unsigned</u>.
+        </div>
+      </div>
+      <div class="fg"><label>Cloud Name</label>
+        <input type="text" id="cldName" placeholder="e.g. dxyz12abc — from Cloudinary Dashboard top-left"></div>
+      <div class="fg"><label>Upload Preset Name</label>
+        <input type="text" id="cldPreset" placeholder="e.g. NTETRACKER — exact name from Upload Presets"></div>
+      <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:10px 12px;font-size:11px;color:#15803d;margin-bottom:4px">
+        ✅ Your preset <b>NTETRACKER</b> is correctly set to <b>Unsigned</b>. Just make sure the Cloud Name below matches your dashboard.
+      </div>
+      <button class="btn btn-ghost btn-sm" style="margin-top:4px" onclick="testCLD()">🔌 Test Connection</button>
+      <div id="cldTestResult" style="display:none;margin-top:8px;padding:9px 12px;border-radius:7px;font-size:12px;font-weight:600"></div>
+    </div>
+    <div class="mftr">
+      <button class="btn btn-secondary" onclick="closeCLD()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveCLD()">💾 Save & Enable Drawing Upload</button>
+    </div>
+  </div>
+</div>
+
+<!-- Drawing upload input (hidden) -->
+<input type="file" id="dwFileInput" accept=".pdf,.png,.jpg,.jpeg,.webp" style="display:none" onchange="handleDwFile(this)">
+
+<div class="loading-ov" id="loader"><div class="spin"></div></div>
+<div id="toast"></div>
+
+<script>
+// ── Supabase — fill in your values from supabase.com → Project Settings → API ──
+var SUPABASE_URL      = 'YOUR_SUPABASE_PROJECT_URL';
+var SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+var db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+var S = {
+  role:null, token:null,
+  jobs:[], companies:[], supervisors:[], supervisorMaster:[], processes:[], filtered:[],
+  view:'kanban', q:'', curJob:null,
+  cloudinary:{cloudName:'',uploadPreset:''},
+  dwPendingJobId:null, dwPendingContext:null
+};
+var STATUS_ORDER = ['RECEIVED','IN PROGRESS','QC','READY','DISPATCHED'];
+var STATUS_ID    = {'RECEIVED':'RECEIVED','IN PROGRESS':'INPROGRESS','QC':'QC','READY':'READY','DISPATCHED':'DISPATCHED'};
+
+// ── DB row → app object ───────────────────────────────────
+function dbToJob(r){
+  return {
+    JOB_ID:r.job_id, SR_NO:r.sr_no, COMPANY:r.company,
+    JOB_TYPE:r.job_type, PO_NO:r.po_no, PO_DATE:r.po_date,
+    JOB_CARD_NO:r.job_card_no, DRG_NO:r.drg_no,
+    DESCRIPTION:r.description, QUANTITY:r.quantity,
+    RECEIVED_DATE:r.received_date, DOD:r.dod,
+    SUPERVISOR:r.supervisor, PRIORITY:r.priority, STATUS:r.status,
+    CURRENT_STAGE:r.current_stage,
+    STAGES_JSON:r.stages_json
+      ?(typeof r.stages_json==='string'?r.stages_json:JSON.stringify(r.stages_json))
+      :'[]',
+    CHALLAN_NO:r.challan_no, CHALLAN_DATE:r.challan_date,
+    BILL_NO:r.bill_no, BILL_DATE:r.bill_date,
+    NOTES:r.notes, DRAWING_URL:r.drawing_url, DRAWING_NAME:r.drawing_name,
+    CREATED_AT:r.created_at, UPDATED_AT:r.updated_at
+  };
+}
+function enrichJob(job){
+  var today=new Date(); today.setHours(0,0,0,0);
+  if(job.DOD&&job.STATUS!=='DISPATCHED'){
+    var dod=new Date(job.DOD); dod.setHours(0,0,0,0);
+    job.IS_OVERDUE=dod<today;
+    job.DAYS_OVERDUE=job.IS_OVERDUE?Math.floor((today-dod)/86400000):0;
+  } else { job.IS_OVERDUE=false; job.DAYS_OVERDUE=0; }
+  return job;
+}
+
+// ── Login ──────────────────────────────────────────────
+async function login(){
+  var role=id('lRole').value, pass=id('lPass').value;
+  load(true);
+  try{
+    var res=await db.rpc('nte_login',{p_role:role,p_password:pass});
+    load(false);
+    if(res.error||!res.data||!res.data.success){ id('lErr').style.display='block'; }
+    else{
+      S.token=res.data.token;
+      sessionStorage.setItem('nte_token',S.token);
+      sessionStorage.setItem('nte_role',res.data.role);
+      afterLogin(res.data.role);
+    }
+  } catch(e){ load(false); id('lErr').style.display='block'; }
+}
+
+function afterLogin(role){
+  S.role=role;
+  id('loginScreen').style.display='none';
+  id('mainApp').style.display='block';
+  id('hRole').textContent=role.toUpperCase();
+  if(role!=='customer') id('addBtn').style.display='flex';
+  if(role==='admin'){ id('pmBtn').style.display='flex'; id('cmBtn').style.display='flex'; id('smBtn').style.display='flex'; }
+  loadData();
+}
+
+function logout(){
+  sessionStorage.removeItem('nte_token');
+  sessionStorage.removeItem('nte_role');
+  S.token=null; S.role=null;
+  id('mainApp').style.display='none';
+  id('loginScreen').style.display='flex';
+  id('lPass').value=''; id('lErr').style.display='none';
+}
+
+// ── Data ───────────────────────────────────────────────
+async function loadData(){
+  load(true);
+  try{
+    var results=await Promise.all([
+      db.from('jobs').select('*').order('created_at',{ascending:false}),
+      db.from('companies').select('*').order('name'),
+      db.from('supervisors').select('*').order('name'),
+      db.from('processes').select('*').order('sort_order'),
+      db.from('config').select('*')
+    ]);
+    load(false);
+    S.jobs=(results[0].data||[]).map(function(r){return enrichJob(dbToJob(r));});
+    S.companies=(results[1].data||[]).map(function(c){
+      return {name:c.name,contact:c.contact,phone:c.phone,email:c.email,address:c.address,active:c.active!==false};
+    });
+    var allSups=(results[2].data||[]).map(function(s){return {name:s.name,role:s.role||'',active:s.active!==false};});
+    S.supervisorMaster=allSups;
+    S.supervisors=allSups.filter(function(s){return s.active!==false;}).map(function(s){return s.name;});
+    S.processes=(results[3].data||[]).map(function(p){return {code:p.code,name:p.display_name,order:p.sort_order,active:p.active!==false};});
+    var cfg=results[4].data||[];
+    S.cloudinary={
+      cloudName:(cfg.find(function(r){return r.key==='CLOUDINARY_CLOUD_NAME';})||{}).value||'',
+      uploadPreset:(cfg.find(function(r){return r.key==='CLOUDINARY_UPLOAD_PRESET';})||{}).value||''
+    };
+    buildFilters(); filt();
+  } catch(e){ load(false); toast('Load error: '+e.message,'err'); }
+}
+
+function buildFilters(){
+  var allCo=new Set(S.companies.filter(function(c){return c.active;}).map(function(c){return c.name;}));
+  S.jobs.forEach(function(j){ if(j.COMPANY) allCo.add(j.COMPANY); });
+  var coSel=id('fCo');
+  coSel.innerHTML='<option value="">All Companies</option>';
+  Array.from(allCo).sort().forEach(function(c){ coSel.innerHTML+='<option>'+esc(c)+'</option>'; });
+  var supSel=id('fSup');
+  supSel.innerHTML='<option value="">All Supervisors</option>';
+  S.supervisors.forEach(function(s){ supSel.innerHTML+='<option>'+esc(s)+'</option>'; });
+  // Modal dropdowns
+  // Supervisor dropdown in modal — from supervisor master
+  var fmSupSel=id('fmSup');
+  var activeSups = S.supervisorMaster
+    ? S.supervisorMaster.filter(function(s){return s.active!==false;}).map(function(s){return s.name;})
+    : S.supervisors;
+  fmSupSel.innerHTML='<option value="">Select…</option>';
+  activeSups.forEach(function(s){ fmSupSel.innerHTML+='<option>'+esc(s)+'</option>'; });
+
+  var fmCo=id('fmCo');
+  fmCo.innerHTML='<option value="">Select Company</option>';
+  Array.from(allCo).sort().forEach(function(c){ fmCo.innerHTML+='<option>'+esc(c)+'</option>'; });
+  var curStgSel=id('fmCurStg');
+  curStgSel.innerHTML='<option value="">Not Started</option><option value="RM">RM — Raw Material Received</option>';
+  S.processes.filter(function(p){return p.active;}).forEach(function(p){
+    curStgSel.innerHTML+='<option value="'+esc(p.code)+'">'+esc(p.code)+' — '+esc(p.name)+'</option>';
+  });
+  buildPTFilters();
+}
+
+// ── Filters ────────────────────────────────────────────
+function onSearch(v){ S.q=v.toLowerCase(); filt(); }
+
+function filt(){
+  var co=id('fCo').value, sup=id('fSup').value,
+      typ=id('fType').value, pri=id('fPri').value,
+      ov=id('fOv').checked, q=S.q;
+  S.filtered=S.jobs.filter(function(j){
+    if(co  && j.COMPANY!==co)    return false;
+    if(sup && j.SUPERVISOR!==sup) return false;
+    if(typ && j.JOB_TYPE!==typ)  return false;
+    if(pri && j.PRIORITY!==pri)  return false;
+    if(ov  && !j.IS_OVERDUE)     return false;
+    if(q){
+      var s=(j.DESCRIPTION+' '+j.COMPANY+' '+j.JOB_ID+' '+j.DRG_NO+' '+j.JOB_CARD_NO+' '+j.PO_NO).toLowerCase();
+      if(!s.includes(q)) return false;
+    }
+    return true;
+  });
+  renderStats(); renderAlerts();
+  if(S.view==='kanban') renderKanban(); else renderTable();
+}
+
+// ── Stats & Alerts ──────────────────────────────────────
+function renderStats(){
+  var c={rcv:0,wip:0,qc:0,rdy:0,dsp:0,ov:0};
+  S.jobs.forEach(function(j){
+    if(j.STATUS==='RECEIVED') c.rcv++;
+    else if(j.STATUS==='IN PROGRESS') c.wip++;
+    else if(j.STATUS==='QC') c.qc++;
+    else if(j.STATUS==='READY') c.rdy++;
+    else if(j.STATUS==='DISPATCHED') c.dsp++;
+    if(j.IS_OVERDUE) c.ov++;
+  });
+  id('sRcv').textContent=c.rcv; id('sWip').textContent=c.wip;
+  id('sQC').textContent=c.qc;   id('sRdy').textContent=c.rdy;
+  id('sOvr').textContent=c.ov;  id('sDsp').textContent=c.dsp;
+}
+
+function renderAlerts(){
+  var ov=S.jobs.filter(function(j){return j.IS_OVERDUE&&j.STATUS!=='DISPATCHED';});
+  var vu=S.jobs.filter(function(j){return j.PRIORITY==='VERY URGENT'&&j.STATUS!=='DISPATCHED';});
+  var bar=id('alertsBar');
+  if(ov.length||vu.length){
+    bar.style.display='flex';
+    id('aOvCnt').textContent=ov.length;
+    id('aTxt').textContent=ov.length+' overdue job(s)';
+    id('aVU').textContent=vu.length?' · ⚡ '+vu.length+' VERY URGENT':'';
+  } else bar.style.display='none';
+}
+
+// ── Mini Stage Bar ─────────────────────────────────────
+function miniStageBar(j){
+  var stages=[]; try{ stages=JSON.parse(j.STAGES_JSON||'[]'); }catch(e){}
+  var done=stages.filter(function(s){return s.done;});
+  var cur=j.CURRENT_STAGE||'';
+  if(!done.length&&!cur) return '';
+  var html='<div class="mini-stage-bar">';
+  var shown=0;
+  done.forEach(function(s){
+    if(s.stage===cur) return;
+    if(shown>0) html+='<span class="msb-arrow">›</span>';
+    html+='<span class="msb msb-done">✓ '+esc(s.stage)+'</span>';
+    shown++;
+  });
+  if(cur){
+    if(shown>0) html+='<span class="msb-arrow">›</span>';
+    html+='<span class="msb msb-cur">● '+esc(cur)+'</span>';
+  }
+  html+='</div>';
+  return html;
+}
+
+// ── Kanban ─────────────────────────────────────────────
+function renderKanban(){
+  STATUS_ORDER.forEach(function(st){
+    var sid=STATUS_ID[st];
+    var col=S.filtered.filter(function(j){return j.STATUS===st;})
+      .sort(function(a,b){
+        if(a.PRIORITY==='VERY URGENT'&&b.PRIORITY!=='VERY URGENT') return -1;
+        if(b.PRIORITY==='VERY URGENT'&&a.PRIORITY!=='VERY URGENT') return 1;
+        if(a.IS_OVERDUE&&!b.IS_OVERDUE) return -1;
+        if(b.IS_OVERDUE&&!a.IS_OVERDUE) return 1;
+        if(a.DOD&&b.DOD) return new Date(a.DOD)-new Date(b.DOD);
+        return 0;
+      });
+    id('cn-'+sid).textContent=col.length;
+    var box=id('kc-'+sid);
+    if(!box) return;
+    if(!col.length){ box.innerHTML='<div class="empty"><div class="ei">📭</div><p>No jobs</p></div>'; return; }
+    box.innerHTML=col.map(card).join('');
+  });
+}
+
+function card(j){
+  var vu=j.PRIORITY==='VERY URGENT', ov=j.IS_OVERDUE;
+  var cls='jcard'+(vu?' vurgent':ov?' overdue':'');
+  var dodTxt=j.DOD?fmtDate(j.DOD):'No DOD';
+  var dodCls=ov?'cdod late':'cdod';
+  var priBdg=vu?'<span class="bdg b-vu">⚡ V.Urgent</span>':j.PRIORITY==='URGENT'?'<span class="bdg b-u">🔶 Urgent</span>':'';
+  var typBdg=j.JOB_TYPE==='WITH MATERIAL'?'<span class="bdg b-mat">📦</span>':'<span class="bdg b-lab">🔧</span>';
+  var ovBdg=ov?'<span class="bdg b-ov">⚠️ '+j.DAYS_OVERDUE+'d</span>':'';
+  var drwBdg=j.DRAWING_URL?'<span class="bdg b-drw">📄 DRW</span>':'';
+  return '<div class="'+cls+'" onclick="openDetail(event,\''+j.JOB_ID+'\')">'
+    +'<div class="cid">'+(j.JOB_ID||'')+' · '+(j.JOB_CARD_NO||j.DRG_NO||'')+'</div>'
+    +'<div class="cdesc">'+esc(j.DESCRIPTION||'No description')+'</div>'
+    +'<div class="cco">🏭 '+esc(j.COMPANY||'')+'</div>'
+    +'<div class="cbadges">'+priBdg+typBdg+ovBdg+drwBdg+'</div>'
+    +miniStageBar(j)
+    +'<div class="cmeta"><span class="'+dodCls+'">'+(ov?'⚠️ ':'📅 ')+dodTxt+(ov&&j.DAYS_OVERDUE?' ('+j.DAYS_OVERDUE+'d late)':'')+'</span>'
+    +'<span class="cqty">×'+(j.QUANTITY||'?')+'</span></div>'
+    +'<div class="cftr"><span class="csup">👤 '+(j.SUPERVISOR||'Unassigned')+'</span></div>'
+    +'</div>';
+}
+
+// ── Table ──────────────────────────────────────────────
+function renderTable(){
+  var tb=id('tBody');
+  if(!S.filtered.length){ tb.innerHTML='<tr><td colspan="12" style="text-align:center;padding:36px;color:#94a3b8">No jobs found</td></tr>'; return; }
+  tb.innerHTML=S.filtered.map(function(j){
+    var rc=j.PRIORITY==='VERY URGENT'?'row-vu':j.IS_OVERDUE?'row-over':'';
+    var sid=(j.STATUS||'RECEIVED').replace(' ','');
+    var dodT=j.DOD?fmtDate(j.DOD):'-'; if(j.IS_OVERDUE) dodT='⚠️ '+dodT;
+    var eb=S.role!=='customer'?'<button class="btn btn-sm btn-ghost" onclick="openModal(event,\''+j.JOB_ID+'\');event.stopPropagation()">Edit</button>':'';
+    var drwCell=j.DRAWING_URL?'<a href="'+j.DRAWING_URL+'" target="_blank" onclick="event.stopPropagation()" style="color:#7c3aed;font-size:16px" title="'+esc(j.DRAWING_NAME||'Drawing')+'">📄</a>':'<span style="color:#e2e8f0">—</span>';
+    return '<tr class="'+rc+'" onclick="openDetail(event,\''+j.JOB_ID+'\')">'
+      +'<td><small style="color:#94a3b8;font-size:10px">'+esc(j.JOB_ID||'')+'</small></td>'
+      +'<td><strong>'+esc(j.COMPANY||'')+'</strong></td>'
+      +'<td>'+esc(j.DESCRIPTION||'')+'</td>'
+      +'<td>'+(j.QUANTITY||'-')+'</td>'
+      +'<td>'+(j.JOB_TYPE==='WITH MATERIAL'?'📦':'🔧')+'</td>'
+      +'<td>'+(j.SUPERVISOR||'-')+'</td>'
+      +'<td style="'+(j.IS_OVERDUE?'color:#ef4444;font-weight:700':'')+'">'+dodT+'</td>'
+      +'<td>'+(miniStageBar(j)||'<span style="color:#94a3b8;font-size:10px">—</span>')+'</td>'
+      +'<td>'+drwCell+'</td>'
+      +'<td>'+priBadge(j.PRIORITY)+'</td>'
+      +'<td><span class="stt stt-'+sid+'">'+(j.STATUS||'RECEIVED')+'</span></td>'
+      +'<td>'+eb+'</td>'
+      +'</tr>';
+  }).join('');
+}
+
+function priBadge(p){
+  if(p==='VERY URGENT') return '<span class="bdg b-vu">⚡</span>';
+  if(p==='URGENT')      return '<span class="bdg b-u">🔶</span>';
+  return '<span style="color:#94a3b8;font-size:11px">—</span>';
+}
+
+function setView(v){
+  S.view=v;
+  id('kanbanView').style.display    = v==='kanban'    ? 'grid'  : 'none';
+  id('tableView').style.display     = v==='table'     ? 'block' : 'none';
+  id('processView').style.display   = v==='process'   ? 'block' : 'none';
+  id('dashboardView').style.display = v==='dashboard' ? 'block' : 'none';
+  id('ptCtrlBar').style.display     = v==='process'   ? 'flex'  : 'none';
+  id('vKan').className='vbtn'+(v==='kanban'?' active':'');
+  id('vTbl').className='vbtn'+(v==='table'?' active':'');
+  id('vPrc').className='vbtn'+(v==='process'?' active':'');
+  id('vDsh').className='vbtn'+(v==='dashboard'?' active':'');
+  if(v==='kanban') renderKanban();
+  else if(v==='table') renderTable();
+  else if(v==='process') renderProcess();
+  else renderDashboard();
+}
+
+// ── Dashboard ──────────────────────────────────────────
+var _charts = {};
+
+function renderDashboard(){
+  var jobs = S.jobs;
+  var today = new Date(); today.setHours(0,0,0,0);
+  var in7 = new Date(today); in7.setDate(in7.getDate()+7);
+
+  // ── Upcoming DODs (next 7 days, not dispatched) ──────
+  var due = jobs.filter(function(j){
+    if(j.STATUS==='DISPATCHED') return false;
+    if(!j.DOD) return false;
+    var d=new Date(j.DOD); d.setHours(0,0,0,0);
+    return d <= in7;
+  }).sort(function(a,b){ return new Date(a.DOD)-new Date(b.DOD); });
+
+  id('dshDueCount').textContent = due.length;
+  id('dshDueList').innerHTML = due.length
+    ? due.map(function(j){
+        var d=new Date(j.DOD); d.setHours(0,0,0,0);
+        var diff=Math.round((d-today)/86400000);
+        var late=diff<0, today0=diff===0, soon=diff>0&&diff<=2;
+        var col=late?'#ef4444':today0?'#f97316':soon?'#f59e0b':'#64748b';
+        var label=late?'⚠️ '+Math.abs(diff)+'d overdue':today0?'⚡ Due TODAY':'📅 '+diff+'d left';
+        return '<div onclick="openDetail(event,&quot;'+j.JOB_ID+'&quot;)" style="cursor:pointer;padding:8px 10px;border-radius:7px;border:1px solid #f1f5f9;display:flex;justify-content:space-between;align-items:center;gap:8px">'
+          +'<div><div style="font-size:11px;font-weight:700;color:#0f172a">'+esc(j.DESCRIPTION||'')+'</div>'
+          +'<div style="font-size:10px;color:#64748b">'+esc(j.COMPANY||'')+' · '+(j.SUPERVISOR||'—')+'</div></div>'
+          +'<span style="font-size:10px;font-weight:800;color:'+col+';white-space:nowrap">'+label+'</span>'
+          +'</div>';
+      }).join('')
+    : '<p style="color:#94a3b8;font-size:12px;text-align:center;padding:16px">No jobs due this week 🎉</p>';
+
+  // ── Supervisor Workload ──────────────────────────────
+  var supMap={};
+  jobs.forEach(function(j){
+    if(j.STATUS==='DISPATCHED') return;
+    var s=j.SUPERVISOR||'Unassigned';
+    if(!supMap[s]) supMap[s]={total:0,overdue:0,urgent:0};
+    supMap[s].total++;
+    if(j.IS_OVERDUE) supMap[s].overdue++;
+    if(j.PRIORITY==='VERY URGENT'||j.PRIORITY==='URGENT') supMap[s].urgent++;
+  });
+  var supRows=Object.keys(supMap).sort(function(a,b){return supMap[b].total-supMap[a].total;});
+  id('dshSupTable').innerHTML = supRows.length
+    ? '<table style="width:100%;border-collapse:collapse;font-size:12px">'
+      +'<thead><tr style="background:#f8fafc"><th style="padding:7px 10px;text-align:left;font-size:10px;font-weight:800;color:#64748b;text-transform:uppercase">Supervisor</th>'
+      +'<th style="padding:7px 10px;text-align:center;font-size:10px;font-weight:800;color:#64748b;text-transform:uppercase">Active</th>'
+      +'<th style="padding:7px 10px;text-align:center;font-size:10px;font-weight:800;color:#ef4444;text-transform:uppercase">Overdue</th>'
+      +'<th style="padding:7px 10px;text-align:center;font-size:10px;font-weight:800;color:#f59e0b;text-transform:uppercase">Urgent</th></tr></thead><tbody>'
+      +supRows.map(function(s,i){
+        var d=supMap[s];
+        var bg=i%2?'#f8fafc':'#fff';
+        return '<tr style="background:'+bg+';border-bottom:1px solid #f1f5f9">'
+          +'<td style="padding:8px 10px;font-weight:700">'+esc(s)+'</td>'
+          +'<td style="padding:8px 10px;text-align:center"><span style="background:#dbeafe;color:#1d4ed8;padding:2px 8px;border-radius:10px;font-weight:800">'+d.total+'</span></td>'
+          +'<td style="padding:8px 10px;text-align:center">'+(d.overdue?'<span style="background:#fef2f2;color:#dc2626;padding:2px 8px;border-radius:10px;font-weight:800">'+d.overdue+'</span>':'<span style="color:#94a3b8">—</span>')+'</td>'
+          +'<td style="padding:8px 10px;text-align:center">'+(d.urgent?'<span style="background:#fff7ed;color:#f59e0b;padding:2px 8px;border-radius:10px;font-weight:800">'+d.urgent+'</span>':'<span style="color:#94a3b8">—</span>')+'</td>'
+          +'</tr>';
+      }).join('')
+      +'</tbody></table>'
+    : '<p style="color:#94a3b8;font-size:12px">No active jobs</p>';
+
+  // ── Stage Load Grid ──────────────────────────────────
+  var stageCount={};
+  jobs.forEach(function(j){
+    if(j.STATUS==='DISPATCHED') return;
+    var s=j.CURRENT_STAGE;
+    if(s){ stageCount[s]=(stageCount[s]||0)+1; }
+  });
+  var allStages=S.processes.filter(function(p){return p.active;});
+  var stageGrid=id('dshStageGrid');
+  var stageCards=allStages.map(function(p){
+    var cnt=stageCount[p.code]||0;
+    var hot=cnt>=5, warm=cnt>=2&&cnt<5;
+    var bg=hot?'#fef2f2':warm?'#fff7ed':'#f8fafc';
+    var bc=hot?'#fca5a5':warm?'#fed7aa':'#e2e8f0';
+    var vc=hot?'#dc2626':warm?'#f97316':'#64748b';
+    return '<div onclick="ptFilterStage(&quot;'+p.code+'&quot;)" style="background:'+bg+';border:1.5px solid '+bc+';border-radius:10px;padding:12px 14px;cursor:pointer;transition:all .15s">'
+      +'<div style="font-size:18px;font-weight:900;color:'+vc+'">'+cnt+'</div>'
+      +'<div style="font-size:18px;font-weight:900;color:'+vc+'">'+cnt+'</div>'
+      +'<div style="font-size:11px;font-weight:800;color:#0f172a;margin-top:2px">'+esc(p.code)+'</div>'
+      +'<div style="font-size:9px;color:#64748b">'+esc(p.name)+'</div>'
+      +(cnt>0?'<div style="font-size:9px;color:'+vc+';margin-top:4px;font-weight:700">'+(hot?'🔴 Heavy load':warm?'🟡 Busy':'')+'</div>':'')
+      +'</div>';
+  }).join('');
+  stageGrid.innerHTML = stageCards || '<p style="color:#94a3b8;font-size:12px">No processes defined</p>';
+
+  // ── Chart: Jobs by Company (bar) ─────────────────────
+  var coMap={};
+  jobs.forEach(function(j){
+    if(j.STATUS==='DISPATCHED') return;
+    var c=j.COMPANY||'Unknown';
+    coMap[c]=(coMap[c]||0)+1;
+  });
+  var coEntries=Object.entries ? Object.entries(coMap) : Object.keys(coMap).map(function(k){return[k,coMap[k]];});
+  coEntries.sort(function(a,b){return b[1]-a[1];});
+  var top10=coEntries.slice(0,10);
+  var coLabels=top10.map(function(e){return e[0].length>16?e[0].substring(0,14)+'…':e[0];});
+  var coData=top10.map(function(e){return e[1];});
+
+  if(_charts.company) _charts.company.destroy();
+  var ctxCo=id('chartCompany').getContext('2d');
+  _charts.company=new Chart(ctxCo,{
+    type:'bar',
+    data:{
+      labels:coLabels,
+      datasets:[{
+        label:'Active Jobs',
+        data:coData,
+        backgroundColor:'rgba(249,115,22,0.75)',
+        borderColor:'#f97316',
+        borderWidth:1.5,
+        borderRadius:5
+      }]
+    },
+    options:{
+      responsive:true,
+      plugins:{legend:{display:false}},
+      scales:{
+        y:{beginAtZero:true,ticks:{stepSize:1,font:{size:10}},grid:{color:'#f1f5f9'}},
+        x:{ticks:{font:{size:10}},grid:{display:false}}
+      }
+    }
+  });
+
+  // ── Chart: Jobs by Status (doughnut) ─────────────────
+  var statusCounts={RECEIVED:0,'IN PROGRESS':0,QC:0,READY:0,DISPATCHED:0};
+  jobs.forEach(function(j){ if(statusCounts[j.STATUS]!==undefined) statusCounts[j.STATUS]++; });
+  if(_charts.status) _charts.status.destroy();
+  var ctxSt=id('chartStatus').getContext('2d');
+  _charts.status=new Chart(ctxSt,{
+    type:'doughnut',
+    data:{
+      labels:['Received','In Progress','QC','Ready','Dispatched'],
+      datasets:[{
+        data:[statusCounts.RECEIVED,statusCounts['IN PROGRESS'],statusCounts.QC,statusCounts.READY,statusCounts.DISPATCHED],
+        backgroundColor:['#94a3b8','#3b82f6','#f59e0b','#22c55e','#06b6d4'],
+        borderWidth:2,
+        borderColor:'#fff'
+      }]
+    },
+    options:{
+      responsive:true,
+      plugins:{
+        legend:{position:'bottom',labels:{font:{size:10},padding:10}},
+        tooltip:{callbacks:{label:function(c){return ' '+c.label+': '+c.raw+' jobs';}}}
+      }
+    }
+  });
+}
+
+// Click a stage card → jump to Process view filtered by that stage
+function ptFilterStage(stage){
+  setView('process');
+  var sel=id('ptStage');
+  if(sel){ sel.value=stage; renderProcess(); }
+}
+
+// ── Process Tracking View ──────────────────────────────
+function buildPTFilters(){
+  // Stage dropdown
+  var sel=id('ptStage');
+  sel.innerHTML='<option value="">All Stages</option>';
+  S.processes.filter(function(p){return p.active;}).forEach(function(p){
+    sel.innerHTML+='<option value="'+esc(p.code)+'">'+esc(p.code)+' — '+esc(p.name)+'</option>';
+  });
+  // Supervisor
+  var sup=id('ptSup');
+  sup.innerHTML='<option value="">All Supervisors</option>';
+  S.supervisors.forEach(function(s){ sup.innerHTML+='<option>'+esc(s)+'</option>'; });
+  // Company
+  var co=id('ptCo');
+  co.innerHTML='<option value="">All Companies</option>';
+  var allCo=new Set(S.jobs.map(function(j){return j.COMPANY;}).filter(Boolean));
+  Array.from(allCo).sort().forEach(function(c){ co.innerHTML+='<option>'+esc(c)+'</option>'; });
+}
+
+function renderProcess(){
+  var stage=id('ptStage').value, sup=id('ptSup').value,
+      co=id('ptCo').value, stt=id('ptStt').value,
+      ov=id('ptOv').checked;
+
+  var list=S.jobs.filter(function(j){
+    if(stt && j.STATUS!==stt) return false;
+    if(sup && j.SUPERVISOR!==sup) return false;
+    if(co  && j.COMPANY!==co) return false;
+    if(ov  && !j.IS_OVERDUE) return false;
+    if(stage){
+      // Must have this stage in STAGES_JSON (assigned or current)
+      var stages=[]; try{stages=JSON.parse(j.STAGES_JSON||'[]');}catch(e){}
+      var hasStage = j.CURRENT_STAGE===stage ||
+        stages.some(function(s){return s.stage===stage;});
+      if(!hasStage) return false;
+    }
+    return true;
+  }).sort(function(a,b){
+    if(a.IS_OVERDUE&&!b.IS_OVERDUE) return -1;
+    if(b.IS_OVERDUE&&!a.IS_OVERDUE) return 1;
+    if(a.DOD&&b.DOD) return new Date(a.DOD)-new Date(b.DOD);
+    return 0;
+  });
+
+  id('ptCount').textContent=list.length+' job'+(list.length!==1?'s':'');
+  var tb=id('ptBody');
+  if(!list.length){
+    tb.innerHTML='<tr><td colspan="9" style="text-align:center;padding:36px;color:#94a3b8">No jobs match the filters</td></tr>';
+    return;
+  }
+
+  tb.innerHTML=list.map(function(j){
+    var stages=[]; try{stages=JSON.parse(j.STAGES_JSON||'[]');}catch(e){}
+    var assignedCodes=stages.map(function(s){return s.stage;});
+
+    // Pipeline: assigned stages as steps
+    var pipe='<div style="display:flex;gap:3px;flex-wrap:wrap;align-items:center">';
+    if(assignedCodes.length){
+      assignedCodes.forEach(function(code,i){
+        var stg=stages.find(function(s){return s.stage===code;});
+        var isDone=stg&&stg.done, isCur=j.CURRENT_STAGE===code;
+        var bg=isCur?'#f97316':isDone?'#22c55e':'#e2e8f0';
+        var fc=isCur?'#fff':isDone?'#fff':'#94a3b8';
+        var brd=isCur?'2px solid #ea580c':isDone?'2px solid #16a34a':'1.5px solid #e2e8f0';
+        var tt=isCur?' title="Current"':isDone?' title="Done '+(stg.date||'')+ '"':'';
+        if(i>0) pipe+='<span style="color:#cbd5e1;font-size:8px">›</span>';
+        pipe+='<span'+tt+' style="font-size:9px;font-weight:800;padding:2px 6px;border-radius:4px;'
+          +'background:'+bg+';color:'+fc+';border:'+brd+'">'
+          +(isCur?'● ':isDone?'✓ ':'')+esc(code)+'</span>';
+      });
+    } else {
+      pipe+='<span style="color:#94a3b8;font-size:10px">No stages assigned</span>';
+    }
+    pipe+='</div>';
+
+    // Current stage badge
+    var curBdg=j.CURRENT_STAGE
+      ?'<span style="background:#fff7ed;color:#f97316;border:1.5px solid #f97316;padding:3px 8px;border-radius:6px;font-size:10px;font-weight:800">● '+esc(j.CURRENT_STAGE)+'</span>'
+      :'<span style="color:#94a3b8;font-size:11px">—</span>';
+
+    var sid=(j.STATUS||'RECEIVED').replace(' ','');
+    var dodT=j.DOD?fmtDate(j.DOD):'-';
+    var dodSty=j.IS_OVERDUE?'color:#ef4444;font-weight:700':'';
+    if(j.IS_OVERDUE) dodT='⚠️ '+dodT+(j.DAYS_OVERDUE?' (+'+j.DAYS_OVERDUE+'d)':'');
+
+    var rowBg=j.IS_OVERDUE?'background:#fef9f9':'';
+
+    return '<tr onclick="openDetail(event,\''+j.JOB_ID+'\')" style="cursor:pointer;'+rowBg+'">'
+      +'<td><small style="color:#94a3b8;font-size:10px">'+esc(j.JOB_ID||'')+'</small></td>'
+      +'<td><strong style="font-size:12px">'+esc(j.COMPANY||'')+'</strong></td>'
+      +'<td style="max-width:180px;font-size:12px">'+esc(j.DESCRIPTION||'')+'</td>'
+      +'<td style="font-size:12px">'+(j.QUANTITY||'-')+'</td>'
+      +'<td style="font-size:12px">'+(j.SUPERVISOR||'—')+'</td>'
+      +'<td style="'+dodSty+';font-size:11px">'+dodT+'</td>'
+      +'<td>'+curBdg+'</td>'
+      +'<td>'+pipe+'</td>'
+      +'<td><span class="stt stt-'+sid+'">'+(j.STATUS||'')+'</span></td>'
+      +'</tr>';
+  }).join('');
+}
+
+// ── Add process to job from "Other Processes" ──────────
+async function addProcToJob(jid, stage){
+  // Add stage to STAGES_JSON without marking as current
+  var j=S.jobs.find(function(x){return x.JOB_ID===jid;});
+  if(!j) return;
+  var stages=[]; try{stages=JSON.parse(j.STAGES_JSON||'[]');}catch(e){}
+  if(stages.some(function(s){return s.stage===stage;})){
+    toast('Stage already in list',''); return;
+  }
+  stages.push({stage:stage,done:false,date:null});
+  j.STAGES_JSON=JSON.stringify(stages);
+  load(true);
+  try{
+    var res=await db.rpc('nte_save_job',{p_token:S.token,p_data:{JOB_ID:jid,STAGES_JSON:j.STAGES_JSON}});
+    load(false);
+    if(res.data&&res.data.success){
+      toast('Stage '+stage+' added','ok');
+      filt();
+      openDetail({stopPropagation:function(){}},jid);
+    } else toast('Error: '+((res.data&&res.data.error)||'Unknown'),'err');
+  } catch(e){ load(false); toast('Error: '+e.message,'err'); }
+}
+
+// ── Detail Panel ───────────────────────────────────────
+function openDetail(e, jid){
+  e.stopPropagation();
+  var j=S.jobs.find(function(x){return x.JOB_ID===jid;});
+  if(!j) return;
+  S.curJob=jid;
+  id('dpTitle').textContent=j.DESCRIPTION||'Job Details';
+  id('dpSub').textContent=(j.COMPANY||'')+' · '+(j.JOB_ID||'');
+
+  var stages=[]; try{ stages=JSON.parse(j.STAGES_JSON||'[]'); }catch(er){}
+
+  // Stage stepper — assigned stages only + "Other Processes"
+  var assignedCodes = stages.map(function(s){ return s.stage; });
+  var assignedProcs = S.processes.filter(function(p){ return assignedCodes.indexOf(p.code) !== -1; });
+  var otherProcs    = S.processes.filter(function(p){ return p.active && assignedCodes.indexOf(p.code) === -1; });
+
+  var stepperHtml='';
+  if(S.role!=='customer') stepperHtml+='<p class="set-stage-hint">👆 Tap a stage to mark as current (auto-timestamps)</p>';
+
+  if(assignedProcs.length){
+    stepperHtml+='<div class="stage-stepper">';
+    assignedProcs.forEach(function(p){
+      var stg=stages.find(function(s){return s.stage===p.code;});
+      var isDone=stg&&stg.done, isCur=j.CURRENT_STAGE===p.code;
+      var cls='sstep'+(isCur?' current':isDone?' done':'');
+      var dotTxt=isCur?'▶':isDone?'✓':p.code.substring(0,2);
+      var click=S.role!=='customer'?'onclick="setStage(\''+jid+'\',\''+p.code+'\')"':'';
+      var dateHtml=stg&&stg.date?'<span class="sstep-date">'+stg.date+'</span>':'';
+      stepperHtml+='<div class="'+cls+'" '+click+'>'
+        +'<div class="sstep-dot">'+dotTxt+'</div>'
+        +'<div class="sstep-info"><div class="sstep-code">'+esc(p.code)+'</div><div class="sstep-name">'+esc(p.name)+'</div></div>'
+        +dateHtml+'</div>';
+    });
+    stepperHtml+='</div>';
+  } else {
+    stepperHtml+='<p style="font-size:11px;color:#94a3b8;padding:8px 0">No stages assigned. Add from Other Processes below or edit the job.</p>';
+  }
+
+  // Other Processes — collapsible
+  if(otherProcs.length && S.role!=='customer'){
+    stepperHtml+='<div style="margin-top:8px">'
+      +'<button onclick="var el=this.nextElementSibling;el.style.display=el.style.display===\'none\'?\'block\':\'none\'"'
+      +' style="background:none;border:1.5px dashed #e2e8f0;border-radius:7px;padding:6px 12px;cursor:pointer;font-size:11px;font-weight:700;color:#64748b;width:100%;text-align:left">'
+      +'➕ Other Processes ('+otherProcs.length+') — tap to add to this job</button>'
+      +'<div style="display:none;margin-top:6px;display:none">'
+      +'<div class="stage-stepper">';
+    otherProcs.forEach(function(p){
+      stepperHtml+='<div class="sstep" onclick="addProcToJob(\''+jid+'\',\''+p.code+'\')" style="opacity:.6;border-style:dashed">'
+        +'<div class="sstep-dot" style="background:#f1f5f9;border-color:#e2e8f0;color:#94a3b8;font-size:9px">+</div>'
+        +'<div class="sstep-info"><div class="sstep-code">'+esc(p.code)+'</div><div class="sstep-name">'+esc(p.name)+'</div></div>'
+        +'<span style="font-size:9px;color:#94a3b8">Add</span>'
+        +'</div>';
+    });
+    stepperHtml+='</div></div></div>';
+  }
+
+  // Drawing section
+
+  var drwHtml='<div class="dp-lbl" style="margin-top:14px">Drawing / Document</div>';
+  if(j.DRAWING_URL){
+    var isImg=/\.(png|jpg|jpeg|webp)/i.test(j.DRAWING_URL);
+    drwHtml+='<div class="drw-card">';
+    if(isImg) drwHtml+='<img src="'+j.DRAWING_URL+'" style="width:100%;border-radius:6px;margin-bottom:8px;max-height:160px;object-fit:contain;background:#f8fafc">';
+    drwHtml+='<div class="drw-card-top"><div class="drw-icon">'+(isImg?'🖼️':'📄')+'</div>'
+      +'<div class="drw-info"><div class="drw-fname">'+esc(j.DRAWING_NAME||'Drawing')+'</div>'
+      +'<div class="drw-hint">Tap Preview to open full size</div></div></div>'
+      +'<div class="drw-btns">'
+      +'<a href="'+j.DRAWING_URL+'" target="_blank" class="drw-btn drw-preview-btn">👁 Preview</a>';
+    if(S.role!=='customer'){
+      drwHtml+='<button class="drw-btn drw-change-btn" onclick="triggerDwUpload(\''+jid+'\',\'detail\')">🔄 Replace</button>'
+        +'<button class="drw-btn drw-remove-btn" onclick="removeDrawing(\''+jid+'\')">✕ Remove</button>';
+    }
+    drwHtml+='</div></div>';
+  } else if(S.role!=='customer'){
+    var cldOk=S.cloudinary.cloudName&&S.cloudinary.uploadPreset;
+    if(cldOk){
+      drwHtml+='<div class="no-drawing">'
+        +'<p>No drawing attached</p>'
+        +'<button class="btn btn-sm btn-ghost" onclick="triggerDwUpload(\''+jid+'\',\'detail\')">📎 Attach Drawing</button>'
+        +'</div>';
+    } else {
+      drwHtml+='<div class="no-drawing">'
+        +'<p>No drawing attached</p>'
+        +'<button class="btn btn-sm btn-ghost" onclick="openCLD()">☁️ Setup Cloudinary first</button>'
+        +'</div>';
+    }
+  }
+
+  // Status buttons
+  var stBtns='';
+  if(S.role!=='customer'){
+    var map={'RECEIVED':'rcv','IN PROGRESS':'wip','QC':'qc','READY':'rdy','DISPATCHED':'dsp'};
+    stBtns='<div class="dp-lbl" style="margin-top:14px">Update Overall Status</div>'
+      +'<div class="status-btns">'
+      +STATUS_ORDER.map(function(st){
+        var k=map[st], on=j.STATUS===st?' on':'';
+        return '<button class="stbtn stbtn-'+k+on+'" onclick="updStt(\''+jid+'\',\''+st+'\')">'+st+'</button>';
+      }).join('')+'</div>';
+  }
+
+  var dispHtml=j.CHALLAN_NO
+    ?'<div class="dp-lbl" style="margin-top:14px">Dispatch Info</div>'
+     +'<div class="dp-grid">'+drow('Challan No',j.CHALLAN_NO)+drow('Challan Date',j.CHALLAN_DATE||'-')+drow('Bill No',j.BILL_NO||'-')+'</div>':'';
+
+  var overdueHtml=j.IS_OVERDUE
+    ?'<div style="background:#fef2f2;color:#dc2626;padding:9px 13px;border-radius:7px;font-size:12px;font-weight:700;margin-top:12px">⚠️ Overdue by '+(j.DAYS_OVERDUE||0)+' day(s)</div>':'';
+
+  var body='<div class="dp-grid">'
+    +drow('Company',j.COMPANY)+drow('Job Type',j.JOB_TYPE==='WITH MATERIAL'?'📦 With Material':'🔧 Labour Only')
+    +drow('PO Number',j.PO_NO||'-')+drow('Job Card',j.JOB_CARD_NO||'-')
+    +drow('Drawing No',j.DRG_NO||'-')+drow('Quantity',j.QUANTITY||'-')
+    +drow('Supervisor',j.SUPERVISOR||'Unassigned')+drow('Priority',j.PRIORITY||'NORMAL')
+    +drow('Received',j.RECEIVED_DATE?fmtDate(j.RECEIVED_DATE):'-')
+    +drow('DOD',j.DOD?fmtDate(j.DOD):'-',j.IS_OVERDUE?'color:#ef4444;font-weight:800':'')
+    +'</div>'+overdueHtml;
+
+  body+='<hr class="dp-divider">';
+  body+='<div class="dp-lbl">Process Stage Tracking</div>'+stepperHtml;
+  body+='<hr class="dp-divider">'+drwHtml;
+  body+='<hr class="dp-divider">'+stBtns+dispHtml;
+
+  if(j.NOTES) body+='<div class="dp-lbl" style="margin-top:14px">Notes</div>'
+    +'<p style="font-size:12px;color:#374151;line-height:1.5">'+esc(j.NOTES)+'</p>';
+
+  if(S.role!=='customer'){
+    body+='<div style="margin-top:18px;padding-top:14px;border-top:1px solid #f1f5f9">'
+      +'<button class="btn btn-secondary" style="width:100%" onclick="openModal(event,\''+jid+'\')">✏️ Edit Full Job</button>'
+      +'</div>';
+  }
+
+  id('dpBody').innerHTML=body;
+  id('detailPanel').classList.add('open');
+}
+
+function drow(lbl,val,sty){
+  return '<div class="dp-sec"><div class="dp-lbl">'+lbl+'</div>'
+    +'<div class="dp-val" style="'+(sty||'')+'">'+esc(String(val||'-'))+'</div></div>';
+}
+
+function closeDetail(){ id('detailPanel').classList.remove('open'); }
+
+// ── Stage change ───────────────────────────────────────
+// Stages that do NOT trigger IN PROGRESS (pre-production only)
+var NON_PROCESS_STAGES = ['RM'];
+
+async function setStage(jid, stage){
+  var j=S.jobs.find(function(x){return x.JOB_ID===jid;});
+  var isActualProcess=NON_PROCESS_STAGES.indexOf(stage)===-1;
+  var shouldAutoProgress=j&&j.STATUS==='RECEIVED'&&isActualProcess;
+  load(true);
+  try{
+    var res=await db.rpc('nte_update_stage',{
+      p_token:S.token,p_job_id:jid,p_stage:stage,p_auto_progress:shouldAutoProgress
+    });
+    load(false);
+    if(res.data&&res.data.success){
+      if(j){
+        j.CURRENT_STAGE=stage;
+        if(shouldAutoProgress) j.STATUS='IN PROGRESS';
+        var stages=[]; try{stages=JSON.parse(j.STAGES_JSON||'[]');}catch(e){}
+        var found=false;
+        stages=stages.map(function(s){if(s.stage===stage){s.done=true;found=true;}return s;});
+        if(!found) stages.push({stage:stage,planned:true,done:true,date:''});
+        j.STAGES_JSON=JSON.stringify(stages);
+      }
+      var msg=shouldAutoProgress?'Stage started — Status → IN PROGRESS ✓':stage==='RM'?'Raw Material Received ✓':'Stage → '+stage;
+      toast(msg,'ok');
+      filt();
+      openDetail({stopPropagation:function(){}},jid);
+    } else toast('Error: '+((res.data&&res.data.error)||'Unknown'),'err');
+  } catch(e){ load(false); toast('Error: '+e.message,'err'); }
+}
+
+// ── Status update ──────────────────────────────────────
+async function updStt(jid, st){
+  var extra=null;
+  if(st==='DISPATCHED'){
+    var ch=prompt('Challan Number (blank for auto):','');
+    if(ch===null) return;
+    if(!ch) ch='CH-'+String(Date.now()).slice(-4);
+    extra={challanNo:ch,challanDate:new Date().toISOString().split('T')[0]};
+  }
+  load(true);
+  try{
+    var res=await db.rpc('nte_quick_status',{
+      p_token:S.token,p_job_id:jid,p_status:st,
+      p_challan_no:extra?extra.challanNo:null,
+      p_challan_date:extra?extra.challanDate:null
+    });
+    load(false);
+    if(res.data&&res.data.success){
+      var j=S.jobs.find(function(x){return x.JOB_ID===jid;});
+      if(j){j.STATUS=st;if(extra){j.CHALLAN_NO=extra.challanNo;j.CHALLAN_DATE=extra.challanDate;}}
+      filt(); closeDetail(); toast('Status → '+st,'ok');
+    } else toast('Error: '+((res.data&&res.data.error)||'Unknown'),'err');
+  } catch(e){ load(false); toast('Error: '+e.message,'err'); }
+}
+
+// ── Drawing Upload ─────────────────────────────────────
+function triggerDwUpload(jid, context){
+  S.dwPendingJobId=jid; S.dwPendingContext=context;
+  id('dwFileInput').value='';
+  id('dwFileInput').click();
+}
+
+async function handleDwFile(input){
+  var file=input.files[0];
+  if(!file) return;
+  if(file.size>10*1024*1024){ toast('File too large. Max 10MB','err'); return; }
+  var cn=S.cloudinary.cloudName, preset=S.cloudinary.uploadPreset;
+  if(!cn||!preset){ toast('Setup Cloudinary first','err'); openCLD(); return; }
+
+  load(true);
+  var fd=new FormData();
+  fd.append('file', file);
+  fd.append('upload_preset', preset);
+  fd.append('folder', 'NTE-Drawings');
+
+  try{
+    var resp=await fetch('https://api.cloudinary.com/v1_1/'+cn+'/auto/upload',{method:'POST',body:fd});
+    var data=await resp.json();
+    if(data.secure_url){
+      var url=data.secure_url, name=file.name;
+      var res=await db.rpc('nte_update_drawing',{p_token:S.token,p_job_id:S.dwPendingJobId,p_url:url,p_name:name});
+      load(false);
+      if(res.data&&res.data.success){
+        var j=S.jobs.find(function(x){return x.JOB_ID===S.dwPendingJobId;});
+        if(j){j.DRAWING_URL=url;j.DRAWING_NAME=name;}
+        toast('Drawing uploaded ✓','ok'); filt();
+        if(S.dwPendingContext==='detail')
+          openDetail({stopPropagation:function(){}},S.dwPendingJobId);
+      } else { load(false); toast('Save failed','err'); }
+    } else {
+      load(false);
+      var errMsg=data.error&&data.error.message?data.error.message:'Unknown error';
+      var errLow=errMsg.toLowerCase();
+      if(errLow.indexOf('unknown api key')!==-1||errLow.indexOf('api key')!==-1){
+        showCldError('❌ Cloud Name is incorrect.\n\nThe Cloud Name you entered does not match any Cloudinary account.\n\nFix: Go to cloudinary.com → login → look at the top-left of your Dashboard for your Cloud Name (e.g. dxyz12abc) → paste it exactly in ⚙️ Cloudinary Setup.');
+      } else if(errLow.indexOf('unknown upload preset')!==-1||errLow.indexOf('preset')!==-1){
+        showCldError('❌ Upload Preset name is wrong.\n\nFix: Go to Cloudinary → Settings → Upload Presets → copy the preset name exactly (e.g. NTETRACKER) → paste it in ⚙️ Cloudinary Setup.\n\nNote: preset names are case-sensitive.');
+      } else if(errLow.indexOf('must use upload preset')!==-1||errLow.indexOf('unsigned')!==-1){
+        showCldError('❌ Upload Preset is set to SIGNED mode.\n\nFix: Go to Cloudinary → Settings → Upload Presets → click your preset → change Signing Mode to UNSIGNED → Save.');
+      } else {
+        showCldError('❌ Upload failed: '+errMsg+'\n\nCheck that your Cloud Name and Preset Name are correct in ⚙️ Cloudinary Setup.');
+      }
+    }
+  } catch(e){ load(false); toast('Network error — check internet connection','err'); }
+}
+
+function showCldError(msg){
+  // Show error in a dedicated alert dialog with fix instructions
+  var box=document.createElement('div');
+  box.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px';
+  box.innerHTML='<div style="background:#fff;border-radius:14px;padding:28px;max-width:440px;width:100%;box-shadow:0 20px 50px rgba(0,0,0,.3)">'
+    +'<div style="font-size:22px;margin-bottom:10px">☁️ Cloudinary Error</div>'
+    +'<p style="font-size:13px;color:#374151;line-height:1.7;white-space:pre-wrap;background:#fef2f2;padding:12px;border-radius:8px;border:1px solid #fecaca">'+msg+'</p>'
+    +'<div style="display:flex;gap:8px;margin-top:16px;justify-content:flex-end">'
+    +'<button onclick="this.closest(\'div[style*=fixed]\').remove();openCLD();" style="background:#f97316;color:#fff;padding:8px 16px;border-radius:7px;border:none;cursor:pointer;font-weight:700;font-size:13px">⚙️ Fix Settings</button>'
+    +'<button onclick="this.closest(\'div[style*=fixed]\').remove()" style="background:#f1f5f9;color:#374151;padding:8px 16px;border-radius:7px;border:none;cursor:pointer;font-weight:700;font-size:13px">Close</button>'
+    +'</div></div>';
+  document.body.appendChild(box);
+}
+
+function testCLD(){
+  var cn=id('cldName').value.trim(), up=id('cldPreset').value.trim();
+  var res=id('cldTestResult');
+  if(!cn||!up){ res.style.display='block'; res.style.background='#fef2f2'; res.style.color='#dc2626'; res.textContent='⚠️ Enter both Cloud Name and Preset Name first.'; return; }
+  res.style.display='block'; res.style.background='#f1f5f9'; res.style.color='#374151'; res.textContent='⏳ Testing connection…';
+  // Upload a tiny 1px transparent PNG to test
+  var tiny='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
+  fetch(tiny).then(function(r){return r.blob();}).then(function(blob){
+    var fd=new FormData();
+    fd.append('file', blob, 'test.png');
+    fd.append('upload_preset', up);
+    return fetch('https://api.cloudinary.com/v1_1/'+cn+'/image/upload',{method:'POST',body:fd});
+  }).then(function(r){return r.json();}).then(function(data){
+    if(data.secure_url){
+      res.style.background='#f0fdf4'; res.style.color='#15803d';
+      res.textContent='✅ Connection successful! Cloud Name and Preset are correct. Click Save.';
+    } else {
+      var errMsg=data.error&&data.error.message?data.error.message:'Unknown error';
+      var errLow=errMsg.toLowerCase();
+      res.style.background='#fef2f2'; res.style.color='#dc2626';
+      if(errLow.indexOf('api key')!==-1||errLow.indexOf('unknown api')!==-1)
+        res.textContent='❌ Wrong Cloud Name — check your Cloudinary Dashboard top-left for the exact name.';
+      else if(errLow.indexOf('preset')!==-1)
+        res.textContent='❌ Preset name not found — check spelling. It is case-sensitive.';
+      else if(errLow.indexOf('unsigned')!==-1||errLow.indexOf('must use')!==-1)
+        res.textContent='❌ Preset must be set to Unsigned in Cloudinary settings.';
+      else
+        res.textContent='❌ Error: '+errMsg;
+    }
+  }).catch(function(){ res.style.background='#fef2f2'; res.style.color='#dc2626'; res.textContent='❌ Network error — check internet connection.'; });
+}
+
+async function removeDrawing(jid){
+  if(!confirm('Remove the attached drawing?')) return;
+  load(true);
+  try{
+    var res=await db.rpc('nte_update_drawing',{p_token:S.token,p_job_id:jid,p_url:'',p_name:''});
+    load(false);
+    if(res.data&&res.data.success){
+      var j=S.jobs.find(function(x){return x.JOB_ID===jid;});
+      if(j){j.DRAWING_URL='';j.DRAWING_NAME='';}
+      toast('Drawing removed','ok'); filt();
+      openDetail({stopPropagation:function(){}},jid);
+    } else toast('Error','err');
+  } catch(e){ load(false); toast('Error: '+e.message,'err'); }
+}
+
+// ── Cloudinary setup ───────────────────────────────────
+function openCLD(){
+  id('cldName').value=S.cloudinary.cloudName||'';
+  id('cldPreset').value=S.cloudinary.uploadPreset||'';
+  id('cldOv').classList.add('on');
+}
+function closeCLD(){ id('cldOv').classList.remove('on'); }
+async function saveCLD(){
+  var cn=id('cldName').value.trim(), up=id('cldPreset').value.trim();
+  if(!cn||!up){ toast('Both fields required','err'); return; }
+  load(true);
+  try{
+    var res=await db.rpc('nte_save_cloudinary',{p_token:S.token,p_cloud_name:cn,p_upload_preset:up});
+    load(false);
+    if(res.data&&res.data.success){S.cloudinary={cloudName:cn,uploadPreset:up};closeCLD();toast('Cloudinary configured ✓','ok');}
+    else toast('Save failed','err');
+  } catch(e){ load(false); toast('Error: '+e.message,'err'); }
+}
+
+// ── Customer Master ────────────────────────────────────
+function openCM(){ renderCMGrid(); id('cmOv').classList.add('on'); }
+function closeCM(){ id('cmOv').classList.remove('on'); }
+
+function renderCMGrid(){
+  var grid=id('cmGrid');
+  if(!S.companies.length){ grid.innerHTML='<p style="color:#94a3b8;font-size:13px;margin-top:8px">No companies yet. Add one above.</p>'; return; }
+  grid.innerHTML=S.companies.map(function(c){
+    var acBadge=c.active?'<span class="badge-active">Active</span>':'<span class="badge-inactive">Inactive</span>';
+    var restoreBtn=!c.active?'<button class="cm-act-btn cm-act-restore" onclick="cAct(\''+esc(c.name)+'\',\'activate\')">Restore</button>':'';
+    return '<div class="cm-card'+(c.active?'':' inactive')+'">'
+      +'<div style="display:flex;justify-content:space-between;align-items:flex-start">'
+      +'<div class="cm-name">'+esc(c.name)+'</div>'+acBadge+'</div>'
+      +(c.contact?'<div class="cm-detail">👤 '+esc(c.contact)+'</div>':'')
+      +(c.phone?'<div class="cm-detail">📞 '+esc(c.phone)+'</div>':'')
+      +(c.email?'<div class="cm-detail">✉️ '+esc(c.email)+'</div>':'')
+      +(c.address?'<div class="cm-detail">📍 '+esc(c.address)+'</div>':'')
+      +'<div class="cm-actions">'
+      +'<button class="cm-act-btn cm-edit-btn" onclick="openCMEdit(\''+esc(c.name)+'\')">✏️ Edit</button>'
+      +(c.active?'<button class="cm-act-btn cm-deact-btn" onclick="cAct(\''+esc(c.name)+'\',\'deactivate\')">⛔ Deactivate</button>':'')
+      +restoreBtn
+      +'</div></div>';
+  }).join('');
+}
+
+function openCMEdit(name){
+  if(name){
+    var c=S.companies.find(function(x){return x.name===name;});
+    if(!c) return;
+    id('ceTitle').textContent='Edit Company';
+    id('ceOrig').value=c.name;
+    id('ceName').value=c.name;
+    id('ceContact').value=c.contact||'';
+    id('cePhone').value=c.phone||'';
+    id('ceEmail').value=c.email||'';
+    id('ceAddr').value=c.address||'';
+    id('ceActive').value=c.active?'true':'false';
+  } else {
+    id('ceTitle').textContent='Add Company';
+    id('ceOrig').value='';
+    ['ceName','ceContact','cePhone','ceEmail','ceAddr'].forEach(function(f){id(f).value='';});
+    id('ceActive').value='true';
+  }
+  id('ceOv').classList.add('on');
+}
+
+function closeCE(){ id('ceOv').classList.remove('on'); }
+
+async function saveCE(){
+  var name=id('ceName').value.trim();
+  if(!name){ toast('Company name required','err'); return; }
+  var data={
+    name:name, contact:id('ceContact').value.trim(),
+    phone:id('cePhone').value.trim(), email:id('ceEmail').value.trim(),
+    address:id('ceAddr').value.trim(), active:id('ceActive').value==='true',
+    originalName:id('ceOrig').value||null
+  };
+  load(true);
+  try{
+    var res=await db.rpc('nte_save_company',{p_token:S.token,p_data:data});
+    load(false);
+    if(res.data&&res.data.success){
+      closeCE();
+      toast('Company '+(res.data.action||'saved')+'!','ok');
+      var cr=await db.from('companies').select('*').order('name');
+      S.companies=(cr.data||[]).map(function(c){return {name:c.name,contact:c.contact,phone:c.phone,email:c.email,address:c.address,active:c.active!==false};});
+      buildFilters(); renderCMGrid();
+    } else toast('Error: '+((res.data&&res.data.error)||'Unknown'),'err');
+  } catch(e){ load(false); toast('Error: '+e.message,'err'); }
+}
+
+async function cAct(name, action){
+  var msg=action==='deactivate'?'Deactivate "'+name+'"? It will be hidden from job dropdowns.':'Restore "'+name+'"?';
+  if(!confirm(msg)) return;
+  load(true);
+  try{
+    var res=await db.rpc('nte_toggle_company',{p_token:S.token,p_name:name,p_active:action!=='deactivate'});
+    load(false);
+    if(res.data&&res.data.success){
+      toast(action==='deactivate'?'Company deactivated':'Company restored','ok');
+      var cr=await db.from('companies').select('*').order('name');
+      S.companies=(cr.data||[]).map(function(c){return {name:c.name,contact:c.contact,phone:c.phone,email:c.email,address:c.address,active:c.active!==false};});
+      buildFilters(); renderCMGrid();
+    } else toast('Error','err');
+  } catch(e){ load(false); toast('Error: '+e.message,'err'); }
+}
+
+// ── Process Master ─────────────────────────────────────
+var PM={editingCode:null};
+function openPM(){ renderPMTable(); id('pmOv').classList.add('on'); }
+function closePM(){ id('pmOv').classList.remove('on'); PM.editingCode=null; }
+
+function renderPMTable(){
+  var rows=S.processes;
+  if(!rows.length){ id('pmBody').innerHTML='<tr><td colspan="5" style="text-align:center;color:#94a3b8;padding:24px">No processes.</td></tr>'; return; }
+  id('pmBody').innerHTML=rows.map(function(p,i){
+    if(PM.editingCode===p.code) return pmEditRowHtml(p,i);
+    var ac=p.active?'<span class="badge-active">Active</span>':'<span class="badge-inactive">Inactive</span>';
+    var restBtn=!p.active?'<button class="pm-act-btn pm-restore-btn" onclick="pmRestore(\''+p.code+'\')">Restore</button>':'';
+    return '<tr class="'+(p.active?'':'pm-inactive')+'">'
+      +'<td style="color:#94a3b8;font-size:11px;text-align:center">'+(i+1)+'</td>'
+      +'<td class="pm-code">'+esc(p.code)+'</td><td>'+esc(p.name)+'</td><td>'+ac+'</td>'
+      +'<td><div class="pm-act-btns">'
+        +'<button class="pm-act-btn pm-edit-btn" onclick="pmEdit(\''+p.code+'\')">✏️ Edit</button>'
+        +'<button class="pm-act-btn pm-del-btn" onclick="pmDelete(\''+p.code+'\')">🗑 Remove</button>'
+        +restBtn
+      +'</div></td></tr>';
+  }).join('');
+}
+
+function pmEditRowHtml(p,i){
+  return '<tr class="pm-edit-row">'
+    +'<td style="color:#94a3b8;font-size:11px;text-align:center">'+(i+1)+'</td>'
+    +'<td><input class="pm-edit-inp" id="pe-code" value="'+esc(p.code)+'" placeholder="Code"></td>'
+    +'<td><input class="pm-edit-inp" id="pe-name" value="'+esc(p.name)+'" placeholder="Display name"></td>'
+    +'<td><select class="pm-edit-inp" id="pe-active">'
+      +'<option value="true"'+(p.active?' selected':'')+'>Active</option>'
+      +'<option value="false"'+(!p.active?' selected':'')+'>Inactive</option>'
+    +'</select></td>'
+    +'<td><div class="pm-act-btns">'
+      +'<button class="pm-act-btn pm-edit-btn" onclick="pmSaveEdit(\''+p.code+'\')">💾 Save</button>'
+      +'<button class="pm-act-btn" style="border-color:#e2e8f0;color:#64748b" onclick="pmCancelEdit()">Cancel</button>'
+    +'</div></td></tr>';
+}
+
+function pmAddRow(){
+  PM.editingCode='__new__';
+  var tbody=id('pmBody');
+  var nr=document.createElement('tr'); nr.className='pm-edit-row'; nr.id='pm-new-row';
+  nr.innerHTML='<td>+</td>'
+    +'<td><input class="pm-edit-inp" id="pe-code" placeholder="e.g. DRILL"></td>'
+    +'<td><input class="pm-edit-inp" id="pe-name" placeholder="Display name"></td>'
+    +'<td><select class="pm-edit-inp" id="pe-active"><option value="true">Active</option><option value="false">Inactive</option></select></td>'
+    +'<td><div class="pm-act-btns">'
+      +'<button class="pm-act-btn pm-edit-btn" onclick="pmSaveNew()">💾 Add</button>'
+      +'<button class="pm-act-btn" style="border-color:#e2e8f0;color:#64748b" onclick="pmCancelEdit()">Cancel</button>'
+    +'</div></td>';
+  tbody.appendChild(nr);
+}
+
+function pmEdit(code){ PM.editingCode=code; renderPMTable(); }
+function pmCancelEdit(){ PM.editingCode=null; renderPMTable(); }
+
+async function pmSaveEdit(origCode){
+  var code=(id('pe-code').value||'').trim().toUpperCase();
+  var name=(id('pe-name').value||'').trim();
+  if(!code||!name){ toast('Code and name required','err'); return; }
+  load(true);
+  try{
+    var res=await db.rpc('nte_save_process',{p_token:S.token,p_data:{code:code,name:name,active:id('pe-active').value==='true',originalCode:origCode}});
+    load(false);
+    if(res.data&&res.data.success){PM.editingCode=null;toast('Process updated','ok');await refreshProcesses();}
+    else toast('Error','err');
+  } catch(e){ load(false); toast('Error: '+e.message,'err'); }
+}
+
+async function pmSaveNew(){
+  var code=(id('pe-code').value||'').trim().toUpperCase();
+  var name=(id('pe-name').value||'').trim();
+  if(!code||!name){ toast('Code and name required','err'); return; }
+  var maxOrd=S.processes.length?Math.max.apply(null,S.processes.map(function(p){return p.order||0;})):0;
+  load(true);
+  try{
+    var res=await db.rpc('nte_save_process',{p_token:S.token,p_data:{code:code,name:name,active:true,order:maxOrd+1,originalCode:null}});
+    load(false);
+    if(res.data&&res.data.success){PM.editingCode=null;toast('Process added','ok');await refreshProcesses();}
+    else toast('Error','err');
+  } catch(e){ load(false); toast('Error: '+e.message,'err'); }
+}
+
+async function pmDelete(code){
+  if(!confirm('Mark "'+code+'" inactive?')) return;
+  load(true);
+  try{
+    var res=await db.rpc('nte_delete_process',{p_token:S.token,p_code:code});
+    load(false);
+    if(res.data&&res.data.success){toast('Removed','ok');await refreshProcesses();}
+  } catch(e){ load(false); toast('Error','err'); }
+}
+
+async function pmRestore(code){
+  load(true);
+  try{
+    var res=await db.rpc('nte_save_process',{p_token:S.token,p_data:{code:code,name:'',active:true,originalCode:code}});
+    load(false);
+    if(res.data&&res.data.success){toast('Restored','ok');await refreshProcesses();}
+  } catch(e){ load(false); toast('Error','err'); }
+}
+
+async function refreshProcesses(){
+  var res=await db.from('processes').select('*').order('sort_order');
+  S.processes=(res.data||[]).map(function(p){return {code:p.code,name:p.display_name,order:p.sort_order,active:p.active!==false};});
+  buildFilters(); renderPMTable();
+}
+
+// ── Job Modal ──────────────────────────────────────────
+function openModal(e, jid){
+  if(e) e.stopPropagation();
+  var procs=S.processes.filter(function(p){return p.active;});
+  id('sgrid').innerHTML=procs.map(function(p){
+    var k=p.code.replace(/[/]/g,'_');
+    return '<label class="sg-item" id="sl-'+k+'">'
+      +'<input type="checkbox" id="sc-'+k+'" value="'+p.code+'" onchange="chkStg(this)"> '
+      +p.code+'<small style="color:#94a3b8;font-size:9px;margin-left:3px">'+p.name+'</small></label>';
+  }).join('');
+
+  if(jid){
+    var j=S.jobs.find(function(x){return x.JOB_ID===jid;});
+    if(!j) return;
+    id('mTitle').textContent='Edit Job'; id('eid').value=j.JOB_ID;
+    setV('fmCo',j.COMPANY||''); setV('fmType',j.JOB_TYPE||'LABOUR');
+    setV('fmPO',j.PO_NO||''); setV('fmPODate',j.PO_DATE||'');
+    setV('fmJC',j.JOB_CARD_NO||''); setV('fmDrg',j.DRG_NO||'');
+    setV('fmDesc',j.DESCRIPTION||''); setV('fmQty',j.QUANTITY||'');
+    setV('fmPri',j.PRIORITY||'NORMAL'); setV('fmRcv',j.RECEIVED_DATE||'');
+    setV('fmDOD',j.DOD||''); setV('fmSup',j.SUPERVISOR||'');
+    setV('fmCurStg',j.CURRENT_STAGE||''); setV('fmStt',j.STATUS||'RECEIVED');
+    setV('fmCH',j.CHALLAN_NO||''); setV('fmCHD',j.CHALLAN_DATE||'');
+    setV('fmBill',j.BILL_NO||''); setV('fmNotes',j.NOTES||'');
+    try{
+      var st=JSON.parse(j.STAGES_JSON||'[]');
+      // Check boxes for both planned and done stages (all stages in the list were planned)
+      st.forEach(function(s){ var cb=id('sc-'+s.stage.replace(/[/]/g,'_')); if(cb){cb.checked=true;chkStg(cb);} });
+    }catch(er){}
+    id('delBtn').style.display='block';
+  } else {
+    id('mTitle').textContent='Add New Job'; id('eid').value='';
+    ['fmCo','fmJC','fmDrg','fmDesc','fmQty','fmPO','fmPODate','fmCH','fmCHD','fmBill','fmNotes'].forEach(function(f){setV(f,'');});
+    setV('fmType','LABOUR'); setV('fmPri','NORMAL'); setV('fmSup','');
+    setV('fmCurStg',''); setV('fmStt','RECEIVED');
+    setV('fmRcv',new Date().toISOString().split('T')[0]);
+    setV('fmDOD',''); id('delBtn').style.display='none';
+  }
+  id('mOv').classList.add('on');
+}
+
+function chkStg(cb){
+  var k=cb.value.replace(/[/]/g,'_'), lbl=id('sl-'+k);
+  if(lbl) cb.checked?lbl.classList.add('checked'):lbl.classList.remove('checked');
+}
+
+function closeModal(){ id('mOv').classList.remove('on'); }
+
+async function saveJob(){
+  var desc=id('fmDesc').value.trim(), co=id('fmCo').value;
+  if(!desc||!co){ toast('Company and Description required','err'); return; }
+  var procs=S.processes.filter(function(p){return p.active;});
+  // Checked stages = planned process flow. done:false means planned, not completed.
+  var stgs=procs.map(function(p){ var cb=id('sc-'+p.code.replace(/[/]/g,'_')); return {stage:p.code,planned:!!(cb&&cb.checked),done:false,date:null}; }).filter(function(s){return s.planned;});
+  var data={
+    JOB_ID:id('eid').value||undefined, COMPANY:co, JOB_TYPE:id('fmType').value,
+    PO_NO:id('fmPO').value, PO_DATE:id('fmPODate').value,
+    JOB_CARD_NO:id('fmJC').value, DRG_NO:id('fmDrg').value,
+    DESCRIPTION:desc, QUANTITY:id('fmQty').value, PRIORITY:id('fmPri').value,
+    RECEIVED_DATE:id('fmRcv').value, DOD:id('fmDOD').value,
+    SUPERVISOR:id('fmSup').value, CURRENT_STAGE:id('fmCurStg').value,
+    STAGES_JSON:JSON.stringify(stgs), STATUS:id('fmStt').value,
+    CHALLAN_NO:id('fmCH').value, CHALLAN_DATE:id('fmCHD').value,
+    BILL_NO:id('fmBill').value, NOTES:id('fmNotes').value
+  };
+  if(!data.JOB_ID) delete data.JOB_ID;
+  load(true);
+  try{
+    var res=await db.rpc('nte_save_job',{p_token:S.token,p_data:data});
+    load(false);
+    if(res.data&&res.data.success){closeModal();toast('Job '+(res.data.action||'saved')+'!','ok');loadData();}
+    else toast('Error: '+((res.data&&res.data.error)||'Unknown'),'err');
+  } catch(e){ load(false); toast('Save failed: '+e.message,'err'); }
+}
+
+async function delJob(){
+  var jid=id('eid').value;
+  if(!jid||!confirm('Delete this job permanently?')) return;
+  load(true);
+  try{
+    var res=await db.rpc('nte_delete_job',{p_token:S.token,p_job_id:jid});
+    load(false);
+    if(res.data&&res.data.success){closeModal();toast('Job deleted','ok');loadData();}
+    else toast('Delete failed','err');
+  } catch(e){ load(false); toast('Error: '+e.message,'err'); }
+}
+
+// ── Utils ──────────────────────────────────────────────
+function id(x){ return document.getElementById(x); }
+function setV(x,v){ var el=id(x); if(el) el.value=v; }
+function esc(s){ if(!s) return ''; return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function load(on){ id('loader').className='loading-ov'+(on?' on':''); }
+function fmtDate(ds){
+  if(!ds) return '-';
+  try{ var d=new Date(ds); if(isNaN(d)) return ds; return d.toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'2-digit'}); }
+  catch(e){ return ds; }
+}
+function toast(msg,type){
+  var t=id('toast'), icon=type==='ok'?'✅ ':type==='err'?'❌ ':'ℹ️ ';
+  t.textContent=icon+msg; t.className='show '+(type||'');
+  clearTimeout(t._t); t._t=setTimeout(function(){t.className='';},3200);
+}
+
+// ── Supervisor Master ──────────────────────────────────
+var SM = { editing:null };
+
+function openSM(){
+  renderSMTable();
+  id('smOv').classList.add('on');
+}
+function closeSM(){ id('smOv').classList.remove('on'); SM.editing=null; }
+
+function renderSMTable(){
+  var sups = S.supervisorMaster || S.supervisors.map(function(s){return{name:s,role:'',active:true};});
+  if(!sups.length){
+    id('smBody').innerHTML='<tr><td colspan="5" style="text-align:center;color:#94a3b8;padding:20px">No supervisors. Add one above.</td></tr>';
+    return;
+  }
+  id('smBody').innerHTML = sups.map(function(s,i){
+    if(SM.editing===s.name) return smEditRowHtml(s,i);
+    var ac=s.active!==false?'<span class="badge-active">Active</span>':'<span class="badge-inactive">Inactive</span>';
+    return '<tr class="'+(s.active!==false?'':'pm-inactive')+'">'
+      +'<td style="color:#94a3b8;font-size:11px;text-align:center">'+(i+1)+'</td>'
+      +'<td style="font-weight:800;font-size:13px">'+esc(s.name)+'</td>'
+      +'<td style="font-size:12px;color:#64748b">'+esc(s.role||'—')+'</td>'
+      +'<td>'+ac+'</td>'
+      +'<td><div class="pm-act-btns">'
+      +'<td><div class="pm-act-btns">'
+        +'<button class="pm-act-btn pm-edit-btn" onclick="smEdit(this.dataset.n)" data-n="'+esc(s.name)+'">✏️ Edit</button>'
+        +'<button class="pm-act-btn pm-del-btn" onclick="smDelete(this.dataset.n)" data-n="'+esc(s.name)+'">🗑 Remove</button>'
+        +(s.active===false?'<button class="pm-act-btn pm-restore-btn" onclick="smRestore(this.dataset.n)" data-n="'+esc(s.name)+'">Restore</button>':'')
+  }).join('');
+}
+
+function smEditRowHtml(s,i){
+  return '<tr class="pm-edit-row">'
+    +'<td style="color:#94a3b8;font-size:11px;text-align:center">'+(i+1)+'</td>'
+    +'<td><input class="pm-edit-inp" id="sm-name" value="'+esc(s.name||'')+'" placeholder="Full name"></td>'
+    +'<td><input class="pm-edit-inp" id="sm-role" value="'+esc(s.role||'')+'" placeholder="e.g. VMC Operator"></td>'
+    +'<td><select class="pm-edit-inp" id="sm-active">'
+      +'<option value="true"'+(s.active!==false?' selected':'')+'>Active</option>'
+      +'<option value="false"'+(s.active===false?' selected':'')+'>Inactive</option>'
+    +'</select></td>'
+    +'<td><div class="pm-act-btns">'
+      +'<button class="pm-act-btn pm-edit-btn" onclick="smSave(this.dataset.n)" data-n="'+esc(s.name||'')+'">💾 Save</button>'
+      +'<button class="pm-act-btn" style="border-color:#e2e8f0;color:#64748b" onclick="smCancel()">Cancel</button>'
+    +'</div></td></tr>';
+}
+
+function smAddRow(){
+  SM.editing='__new__';
+  var tbody=id('smBody');
+  var nr=document.createElement('tr'); nr.className='pm-edit-row';
+  nr.innerHTML='<td>+</td>'
+    +'<td><input class="pm-edit-inp" id="sm-name" placeholder="Full name e.g. Vikas"></td>'
+    +'<td><input class="pm-edit-inp" id="sm-role" placeholder="e.g. VMC Operator"></td>'
+    +'<td><select class="pm-edit-inp" id="sm-active"><option value="true">Active</option><option value="false">Inactive</option></select></td>'
+    +'<td><div class="pm-act-btns">'
+      +'<button class="pm-act-btn pm-edit-btn" onclick="smSaveNew()">💾 Add</button>'
+      +'<button class="pm-act-btn" style="border-color:#e2e8f0;color:#64748b" onclick="smCancel()">Cancel</button>'
+    +'</div></td>';
+  tbody.appendChild(nr);
+}
+
+function smEdit(name){ SM.editing=name; renderSMTable(); }
+function smCancel(){ SM.editing=null; renderSMTable(); }
+
+async function smSave(origName){
+  var name=(id('sm-name').value||'').trim();
+  var role=(id('sm-role').value||'').trim();
+  var active=id('sm-active').value==='true';
+  if(!name){ toast('Name required','err'); return; }
+  load(true);
+  try{
+    var res=await db.rpc('nte_save_supervisor',{p_token:S.token,p_data:{name:name,role:role,active:active,originalName:origName}});
+    load(false);
+    if(res.data&&res.data.success){SM.editing=null;toast('Supervisor updated','ok');await refreshSupervisors();}
+    else toast('Error: '+((res.data&&res.data.error)||'Unknown'),'err');
+  } catch(e){ load(false); toast('Error: '+e.message,'err'); }
+}
+
+async function smSaveNew(){
+  var name=(id('sm-name').value||'').trim();
+  var role=(id('sm-role').value||'').trim();
+  if(!name){ toast('Name required','err'); return; }
+  load(true);
+  try{
+    var res=await db.rpc('nte_save_supervisor',{p_token:S.token,p_data:{name:name,role:role,active:true,originalName:null}});
+    load(false);
+    if(res.data&&res.data.success){SM.editing=null;toast('Supervisor added','ok');await refreshSupervisors();}
+    else toast('Error: '+((res.data&&res.data.error)||'Unknown'),'err');
+  } catch(e){ load(false); toast('Error: '+e.message,'err'); }
+}
+
+async function smDelete(name){
+  if(!confirm('Remove "'+name+'" from active supervisors?')) return;
+  load(true);
+  try{
+    var res=await db.rpc('nte_delete_supervisor',{p_token:S.token,p_name:name});
+    load(false);
+    if(res.data&&res.data.success){toast('Supervisor removed','ok');await refreshSupervisors();}
+    else toast('Error','err');
+  } catch(e){ load(false); toast('Error: '+e.message,'err'); }
+}
+
+async function smRestore(name){
+  load(true);
+  try{
+    var res=await db.rpc('nte_save_supervisor',{p_token:S.token,p_data:{name:name,role:'',active:true,originalName:name}});
+    load(false);
+    if(res.data&&res.data.success){toast('Supervisor restored','ok');await refreshSupervisors();}
+    else toast('Error','err');
+  } catch(e){ load(false); toast('Error: '+e.message,'err'); }
+}
+
+async function refreshSupervisors(){
+  var res=await db.from('supervisors').select('*').order('name');
+  var allSups=(res.data||[]).map(function(s){return {name:s.name,role:s.role||'',active:s.active!==false};});
+  S.supervisorMaster=allSups;
+  S.supervisors=allSups.filter(function(s){return s.active!==false;}).map(function(s){return s.name;});
+  buildFilters(); renderSMTable();
+}
+
+document.addEventListener('keydown',function(e){if(e.key==='Escape'){closeDetail();closeModal();closePM();closeCM();closeCE();closeCLD();closeSM();}});
+setInterval(function(){if(S.role)loadData();},180000);
+
+// ── Session restore on page load ───────────────────────
+(function(){
+  var token=sessionStorage.getItem('nte_token');
+  var role=sessionStorage.getItem('nte_role');
+  if(token&&role){S.token=token;afterLogin(role);}
+})();
+</script>
+</body>
+</html>
