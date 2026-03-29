@@ -9,7 +9,7 @@
 :root{
   --bg:#f1f5f9;--surface:#fff;--header:#0f172a;
   --accent:#f97316;--accent-d:#ea580c;
-  --text:#1e293b;--muted:#64748b;--border:#e2e8f0;--r:8px;
+  --text:#1e293b;--muted:#374151;--border:#e2e8f0;--r:8px;
 }
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
   background:var(--bg);color:var(--text);min-height:100vh}
@@ -22,7 +22,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .login-logo{text-align:center;margin-bottom:36px}
 .login-logo h1{font-size:30px;font-weight:900;color:#0f172a;letter-spacing:-1px}
 .login-logo h1 span{color:#f97316}
-.login-logo p{color:#64748b;font-size:13px;margin-top:6px}
+.login-logo p{color:#374151;font-size:13px;margin-top:6px}
 .login-divider{border:none;border-top:1px solid #f1f5f9;margin:20px 0}
 
 /* ── FORMS ─────────────────────────── */
@@ -44,7 +44,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .btn-primary{background:#f97316;color:#fff}.btn-primary:hover{background:#ea580c;transform:translateY(-1px)}
 .btn-secondary{background:#f1f5f9;color:#374151}.btn-secondary:hover{background:#e2e8f0}
 .btn-danger{background:#ef4444;color:#fff}.btn-danger:hover{background:#dc2626}
-.btn-ghost{background:transparent;color:#64748b;border:1.5px solid #e2e8f0}
+.btn-ghost{background:transparent;color:#374151;border:1.5px solid #e2e8f0}
 .btn-ghost:hover{background:#f8fafc;color:#0f172a}
 .btn-full{width:100%;justify-content:center;padding:12px}
 .btn-sm{padding:5px 12px;font-size:11px;border-radius:6px}
@@ -85,10 +85,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .stats-row{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:16px}
 .sc{background:#fff;border-radius:var(--r);padding:14px 16px;border-left:4px solid;
   box-shadow:0 1px 3px rgba(0,0,0,.06)}
-.sc .lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#64748b;margin-bottom:5px}
+.sc .lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#374151;margin-bottom:5px}
 .sc .val{font-size:26px;font-weight:900;color:#0f172a;line-height:1}
-.sc .sub{font-size:10px;color:#94a3b8;margin-top:3px}
-.sc-rcv{border-color:#94a3b8}.sc-wip{border-color:#3b82f6}.sc-qc{border-color:#f59e0b}
+.sc .sub{font-size:10px;color:#4b5563;margin-top:3px}
+.sc-rcv{border-color:#4b5563}.sc-wip{border-color:#3b82f6}.sc-qc{border-color:#f59e0b}
 .sc-rdy{border-color:#22c55e}.sc-over{border-color:#ef4444;background:#fef2f2}.sc-disp{border-color:#06b6d4}
 
 /* ── CONTROLS ─────────────────────────── */
@@ -100,7 +100,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .cb-label{display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer;color:#374151;font-weight:600}
 .view-toggle{margin-left:auto;display:flex;background:#f1f5f9;border-radius:8px;padding:3px;gap:2px}
 .vbtn{padding:6px 14px;border-radius:6px;border:none;cursor:pointer;font-size:12px;font-weight:600;
-  background:transparent;color:#64748b;transition:all .2s}
+  background:transparent;color:#374151;transition:all .2s}
 .vbtn.active{background:#fff;color:#0f172a;box-shadow:0 1px 3px rgba(0,0,0,.12)}
 .add-btn{background:#f97316;color:#fff;padding:7px 14px;border-radius:8px;border:none;
   cursor:pointer;font-size:12px;font-weight:700;display:flex;align-items:center;gap:5px}
@@ -114,7 +114,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .kcol-ttl{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;
   display:flex;align-items:center;gap:5px}
 .kcnt{background:rgba(0,0,0,.08);padding:1px 7px;border-radius:10px;font-size:10px;font-weight:800}
-.col-rcv .kcol-hdr{border-color:#94a3b8;color:#475569}
+.col-rcv .kcol-hdr{border-color:#4b5563;color:#374151}
 .col-wip .kcol-hdr{border-color:#3b82f6;color:#2563eb}
 .col-qc  .kcol-hdr{border-color:#f59e0b;color:#d97706}
 .col-rdy .kcol-hdr{border-color:#22c55e;color:#16a34a}
@@ -127,9 +127,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .jcard.overdue{border-left:3px solid #ef4444}
 .jcard.vurgent{border-left:3px solid #dc2626;animation:pulse 2s infinite}
 @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(220,38,38,.2)}50%{box-shadow:0 0 0 4px rgba(220,38,38,.08)}}
-.cid{font-size:9px;color:#94a3b8;font-weight:600;margin-bottom:3px}
+.cid{font-size:9px;color:#4b5563;font-weight:600;margin-bottom:3px}
 .cdesc{font-size:12px;font-weight:700;color:#0f172a;margin-bottom:4px;line-height:1.3}
-.cco{font-size:11px;color:#64748b;margin-bottom:6px}
+.cco{font-size:11px;color:#374151;margin-bottom:6px}
 .cbadges{display:flex;gap:3px;flex-wrap:wrap;margin-bottom:6px}
 .bdg{font-size:9px;font-weight:800;padding:2px 6px;border-radius:4px;text-transform:uppercase}
 .b-mat{background:#dbeafe;color:#1d4ed8}.b-lab{background:#f0fdf4;color:#15803d}
@@ -137,10 +137,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 .b-ov{background:#fef2f2;color:#dc2626;border:1px solid #fecaca}
 .b-drw{background:#f5f3ff;color:#7c3aed}
 .cmeta{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:6px}
-.cdod{font-size:10px;color:#64748b}.cdod.late{color:#ef4444;font-weight:800}
-.cqty{font-size:10px;color:#64748b;background:#f1f5f9;padding:1px 6px;border-radius:4px}
+.cdod{font-size:10px;color:#374151}.cdod.late{color:#ef4444;font-weight:800}
+.cqty{font-size:10px;color:#374151;background:#f1f5f9;padding:1px 6px;border-radius:4px}
 .cftr{display:flex;justify-content:space-between;align-items:center}
-.csup{font-size:10px;color:#64748b}
+.csup{font-size:10px;color:#374151}
 
 /* ── MINI STAGE BAR ─────────────────── */
 .mini-stage-bar{display:flex;gap:3px;flex-wrap:wrap;margin:5px 0;align-items:center}
@@ -162,7 +162,7 @@ tbody tr.row-vu{background:#fff8f8}
 tbody td{padding:9px 14px;color:#374151}
 .stt{display:inline-flex;align-items:center;padding:3px 9px;border-radius:12px;
   font-size:10px;font-weight:800;text-transform:uppercase;white-space:nowrap}
-.stt-RECEIVED{background:#f1f5f9;color:#475569}.stt-INPROGRESS{background:#dbeafe;color:#1d4ed8}
+.stt-RECEIVED{background:#f1f5f9;color:#374151}.stt-INPROGRESS{background:#dbeafe;color:#1d4ed8}
 .stt-QC{background:#fef3c7;color:#d97706}.stt-READY{background:#dcfce7;color:#16a34a}
 .stt-DISPATCHED{background:#cffafe;color:#0891b2}
 
@@ -176,7 +176,7 @@ tbody td{padding:9px 14px;color:#374151}
   justify-content:space-between;position:sticky;top:0;background:#fff;z-index:10;
   border-radius:16px 16px 0 0}
 .mhdr h2{font-size:17px;font-weight:800}
-.mcls{background:none;border:none;font-size:24px;cursor:pointer;color:#64748b;
+.mcls{background:none;border:none;font-size:24px;cursor:pointer;color:#374151;
   line-height:1;padding:4px;border-radius:6px}
 .mcls:hover{background:#f1f5f9;color:#0f172a}
 .mbody{padding:22px}
@@ -185,7 +185,7 @@ tbody td{padding:9px 14px;color:#374151}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
 .sec-ttl{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;
-  color:#94a3b8;margin:18px 0 10px;padding-bottom:6px;border-bottom:1px solid #f1f5f9}
+  color:#4b5563;margin:18px 0 10px;padding-bottom:6px;border-bottom:1px solid #f1f5f9}
 
 /* ── STAGES GRID (modal) ─────────────── */
 .stage-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:6px}
@@ -199,7 +199,7 @@ tbody td{padding:9px 14px;color:#374151}
 .drw-zone{border:2px dashed #e2e8f0;border-radius:10px;padding:18px;text-align:center;
   cursor:pointer;transition:all .2s;background:#fafafa}
 .drw-zone:hover,.drw-zone.drag{border-color:#f97316;background:#fff7ed}
-.drw-zone p{font-size:12px;color:#64748b;margin-top:6px}
+.drw-zone p{font-size:12px;color:#374151;margin-top:6px}
 .drw-zone .dz-icon{font-size:28px}
 .drw-existing{background:#f0fdf4;border:1px solid #86efac;border-radius:8px;
   padding:10px 14px;display:flex;align-items:center;gap:10px;margin-top:8px}
@@ -217,7 +217,7 @@ tbody td{padding:9px 14px;color:#374151}
 #detailPanel.open{right:0}
 .dp-hdr{background:#0f172a;color:#fff;padding:18px 20px;position:sticky;top:0;z-index:10}
 .dp-hdr h3{font-size:15px;font-weight:800;padding-right:40px;line-height:1.3}
-.dp-hdr p{font-size:11px;color:rgba(255,255,255,.55);margin-top:4px}
+.dp-hdr p{font-size:11px;color:rgba(255,255,255,.85);margin-top:4px}
 .dp-cls{position:absolute;top:14px;right:14px;background:rgba(255,255,255,.1);border:none;
   color:#fff;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:18px;
   display:flex;align-items:center;justify-content:center}
@@ -225,7 +225,7 @@ tbody td{padding:9px 14px;color:#374151}
 .dp-body{padding:18px;flex:1}
 .dp-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 .dp-sec{margin-bottom:4px}
-.dp-lbl{font-size:10px;font-weight:700;text-transform:uppercase;color:#94a3b8;
+.dp-lbl{font-size:10px;font-weight:700;text-transform:uppercase;color:#4b5563;
   letter-spacing:.05em;margin-bottom:3px}
 .dp-val{font-size:13px;color:#1e293b;font-weight:500}
 .dp-divider{border:none;border-top:1px solid #f1f5f9;margin:14px 0}
@@ -247,7 +247,7 @@ tbody td{padding:9px 14px;color:#374151}
 .drw-remove-btn:hover{background:#fee2e2}
 .no-drawing{background:#f8fafc;border:1.5px dashed #e2e8f0;border-radius:10px;
   padding:14px;text-align:center;margin-top:6px}
-.no-drawing p{font-size:11px;color:#94a3b8;margin-bottom:8px}
+.no-drawing p{font-size:11px;color:#4b5563;margin-bottom:8px}
 
 /* ── STAGE STEPPER ─────────────────── */
 .stage-stepper{display:flex;flex-direction:column;gap:4px;margin-top:8px}
@@ -262,11 +262,11 @@ tbody td{padding:9px 14px;color:#374151}
 .sstep.current .sstep-dot{background:#f97316;border-color:#ea580c;color:#fff}
 .sstep-info{flex:1}
 .sstep-code{font-size:12px;font-weight:800;color:#0f172a}
-.sstep-name{font-size:10px;color:#64748b}
-.sstep-date{font-size:9px;color:#94a3b8;margin-left:auto}
+.sstep-name{font-size:10px;color:#374151}
+.sstep-date{font-size:9px;color:#4b5563;margin-left:auto}
 .sstep.current .sstep-code{color:#f97316}
 .sstep.done    .sstep-code{color:#15803d}
-.set-stage-hint{font-size:10px;color:#94a3b8;margin-bottom:6px;background:#f8fafc;
+.set-stage-hint{font-size:10px;color:#4b5563;margin-bottom:6px;background:#f8fafc;
   padding:6px 10px;border-radius:6px;border:1px dashed #e2e8f0}
 
 /* ── STATUS BUTTONS ─────────────────── */
@@ -274,7 +274,7 @@ tbody td{padding:9px 14px;color:#374151}
 .stbtn{padding:7px 12px;border-radius:7px;border:2px solid;cursor:pointer;
   font-size:11px;font-weight:800;transition:all .2s;text-transform:uppercase}
 .stbtn:not(.on){opacity:.4}.stbtn:hover{opacity:1}
-.stbtn-rcv{border-color:#94a3b8;color:#475569}.stbtn-rcv.on{background:#f1f5f9}
+.stbtn-rcv{border-color:#4b5563;color:#374151}.stbtn-rcv.on{background:#f1f5f9}
 .stbtn-wip{border-color:#3b82f6;color:#2563eb}.stbtn-wip.on{background:#dbeafe}
 .stbtn-qc{border-color:#f59e0b;color:#d97706}.stbtn-qc.on{background:#fef3c7}
 .stbtn-rdy{border-color:#22c55e;color:#16a34a}.stbtn-rdy.on{background:#dcfce7}
@@ -287,7 +287,7 @@ tbody td{padding:9px 14px;color:#374151}
 .cm-card:hover{border-color:#f97316;box-shadow:0 4px 12px rgba(0,0,0,.08)}
 .cm-card.inactive{opacity:.5;border-style:dashed}
 .cm-name{font-size:14px;font-weight:800;color:#0f172a;margin-bottom:6px}
-.cm-detail{font-size:11px;color:#64748b;margin-bottom:3px;display:flex;align-items:center;gap:5px}
+.cm-detail{font-size:11px;color:#374151;margin-bottom:3px;display:flex;align-items:center;gap:5px}
 .cm-actions{display:flex;gap:6px;margin-top:10px;padding-top:10px;border-top:1px solid #f1f5f9}
 .cm-act-btn{padding:5px 10px;border-radius:6px;border:1px solid;cursor:pointer;
   font-size:10px;font-weight:700;transition:all .15s}
@@ -298,12 +298,12 @@ tbody td{padding:9px 14px;color:#374151}
 .cm-act-restore{border-color:#86efac;color:#16a34a;background:#f0fdf4}
 .cm-act-restore:hover{background:#dcfce7}
 .badge-active{background:#dcfce7;color:#15803d;padding:2px 7px;border-radius:10px;font-size:9px;font-weight:800}
-.badge-inactive{background:#f1f5f9;color:#94a3b8;padding:2px 7px;border-radius:10px;font-size:9px;font-weight:800}
+.badge-inactive{background:#f1f5f9;color:#4b5563;padding:2px 7px;border-radius:10px;font-size:9px;font-weight:800}
 
 /* ── PROCESS MASTER ─────────────────── */
 .pm-table{width:100%;border-collapse:collapse;font-size:13px;margin-top:10px}
 .pm-table th{background:#f8fafc;padding:9px 12px;text-align:left;font-size:10px;
-  font-weight:800;text-transform:uppercase;color:#64748b;border-bottom:1px solid #e2e8f0}
+  font-weight:800;text-transform:uppercase;color:#374151;border-bottom:1px solid #e2e8f0}
 .pm-table td{padding:9px 12px;border-bottom:1px solid #f1f5f9;vertical-align:middle}
 .pm-table tr:hover td{background:#fafafa}
 .pm-inactive td{opacity:.45}
@@ -326,7 +326,7 @@ tbody td{padding:9px 14px;color:#374151}
 .cld-setup a{color:#0369a1;font-weight:700}
 
 /* ── MISC ─────────────────────────── */
-.empty{text-align:center;padding:32px 16px;color:#94a3b8}
+.empty{text-align:center;padding:32px 16px;color:#4b5563}
 .empty .ei{font-size:28px;margin-bottom:6px}
 .loading-ov{display:none;position:fixed;inset:0;background:rgba(255,255,255,.8);
   z-index:2000;align-items:center;justify-content:center}
@@ -370,7 +370,7 @@ tbody td{padding:9px 14px;color:#374151}
     <div id="lErr" class="err-msg">❌ Invalid credentials. Please try again.</div>
     <button class="btn btn-primary btn-full" style="margin-top:14px" onclick="login()">Sign In →</button>
     <hr class="login-divider">
-    <p style="font-size:10px;color:#94a3b8;text-align:center;line-height:1.7">
+    <p style="font-size:10px;color:#4b5563;text-align:center;line-height:1.7">
       Admin: <b>NTE@2026</b> · Supervisor: <b>floor@123</b> · Customer: <b>view@123</b>
     </p>
   </div>
@@ -380,6 +380,7 @@ tbody td{padding:9px 14px;color:#374151}
 <div id="mainApp">
   <header class="hdr">
     <div class="hdr-logo"><span>NTE</span> Tracker</div>
+    <button id="backBtn" class="hdr-btn" onclick="setView('kanban')" style="display:none">← Back</button>
     <div class="hdr-search">
       <div class="srch-wrap">
         <span class="srch-icon">🔍</span>
@@ -452,7 +453,7 @@ tbody td{padding:9px 14px;color:#374151}
         <option value="DISPATCHED">🚚 Dispatched</option>
       </select>
       <label class="cb-label"><input type="checkbox" id="ptOv" onchange="renderProcess()"> Overdue only</label>
-      <span id="ptCount" style="margin-left:auto;font-size:12px;color:#64748b;font-weight:600"></span>
+      <span id="ptCount" style="margin-left:auto;font-size:12px;color:#374151;font-weight:600"></span>
     </div>
 
     <!-- Process Tracking View -->
@@ -637,7 +638,7 @@ tbody td{padding:9px 14px;color:#374151}
     </div>
     <div class="mbody" id="cmBody">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-        <p style="font-size:12px;color:#64748b">Manage all customer companies. Inactive companies are hidden from job dropdowns.</p>
+        <p style="font-size:12px;color:#374151">Manage all customer companies. Inactive companies are hidden from job dropdowns.</p>
         <button class="btn btn-primary btn-sm" onclick="openCMEdit(null)">+ Add Company</button>
       </div>
       <div class="cm-grid" id="cmGrid"></div>
@@ -1007,7 +1008,7 @@ function card(j){
 // ── Table ──────────────────────────────────────────────
 function renderTable(){
   var tb=id('tBody');
-  if(!S.filtered.length){ tb.innerHTML='<tr><td colspan="12" style="text-align:center;padding:36px;color:#94a3b8">No jobs found</td></tr>'; return; }
+  if(!S.filtered.length){ tb.innerHTML='<tr><td colspan="12" style="text-align:center;padding:36px;color:#4b5563">No jobs found</td></tr>'; return; }
   tb.innerHTML=S.filtered.map(function(j){
     var rc=j.PRIORITY==='VERY URGENT'?'row-vu':j.IS_OVERDUE?'row-over':'';
     var sid=(j.STATUS||'RECEIVED').replace(' ','');
@@ -1015,14 +1016,14 @@ function renderTable(){
     var eb=S.role!=='customer'?'<button class="btn btn-sm btn-ghost" onclick="openModal(event,\''+j.JOB_ID+'\');event.stopPropagation()">Edit</button>':'';
     var drwCell=j.DRAWING_URL?'<a href="'+j.DRAWING_URL+'" target="_blank" onclick="event.stopPropagation()" style="color:#7c3aed;font-size:16px" title="'+esc(j.DRAWING_NAME||'Drawing')+'">📄</a>':'<span style="color:#e2e8f0">—</span>';
     return '<tr class="'+rc+'" onclick="openDetail(event,\''+j.JOB_ID+'\')">'
-      +'<td><small style="color:#94a3b8;font-size:10px">'+esc(j.JOB_ID||'')+'</small></td>'
+      +'<td><small style="color:#4b5563;font-size:10px">'+esc(j.JOB_ID||'')+'</small></td>'
       +'<td><strong>'+esc(j.COMPANY||'')+'</strong></td>'
       +'<td>'+esc(j.DESCRIPTION||'')+'</td>'
       +'<td>'+(j.QUANTITY||'-')+'</td>'
       +'<td>'+(j.JOB_TYPE==='WITH MATERIAL'?'📦':'🔧')+'</td>'
       +'<td>'+(j.SUPERVISOR||'-')+'</td>'
       +'<td style="'+(j.IS_OVERDUE?'color:#ef4444;font-weight:700':'')+'">'+dodT+'</td>'
-      +'<td>'+(miniStageBar(j)||'<span style="color:#94a3b8;font-size:10px">—</span>')+'</td>'
+      +'<td>'+(miniStageBar(j)||'<span style="color:#4b5563;font-size:10px">—</span>')+'</td>'
       +'<td>'+drwCell+'</td>'
       +'<td>'+priBadge(j.PRIORITY)+'</td>'
       +'<td><span class="stt stt-'+sid+'">'+(j.STATUS||'RECEIVED')+'</span></td>'
@@ -1034,7 +1035,7 @@ function renderTable(){
 function priBadge(p){
   if(p==='VERY URGENT') return '<span class="bdg b-vu">⚡</span>';
   if(p==='URGENT')      return '<span class="bdg b-u">🔶</span>';
-  return '<span style="color:#94a3b8;font-size:11px">—</span>';
+  return '<span style="color:#4b5563;font-size:11px">—</span>';
 }
 
 function setView(v){
@@ -1048,6 +1049,7 @@ function setView(v){
   id('vTbl').className='vbtn'+(v==='table'?' active':'');
   id('vPrc').className='vbtn'+(v==='process'?' active':'');
   id('vDsh').className='vbtn'+(v==='dashboard'?' active':'');
+  id('backBtn').style.display = v==='kanban' ? 'none' : 'flex';
   if(v==='kanban') renderKanban();
   else if(v==='table') renderTable();
   else if(v==='process') renderProcess();
@@ -1080,11 +1082,11 @@ function renderDashboard(){
         var label=late?'⚠️ '+Math.abs(diff)+'d overdue':today0?'⚡ Due TODAY':'📅 '+diff+'d left';
         return '<div onclick="openDetail(event,&quot;'+j.JOB_ID+'&quot;)" style="cursor:pointer;padding:8px 10px;border-radius:7px;border:1px solid #f1f5f9;display:flex;justify-content:space-between;align-items:center;gap:8px">'
           +'<div><div style="font-size:11px;font-weight:700;color:#0f172a">'+esc(j.DESCRIPTION||'')+'</div>'
-          +'<div style="font-size:10px;color:#64748b">'+esc(j.COMPANY||'')+' · '+(j.SUPERVISOR||'—')+'</div></div>'
+          +'<div style="font-size:10px;color:#374151">'+esc(j.COMPANY||'')+' · '+(j.SUPERVISOR||'—')+'</div></div>'
           +'<span style="font-size:10px;font-weight:800;color:'+col+';white-space:nowrap">'+label+'</span>'
           +'</div>';
       }).join('')
-    : '<p style="color:#94a3b8;font-size:12px;text-align:center;padding:16px">No jobs due this week 🎉</p>';
+    : '<p style="color:#4b5563;font-size:12px;text-align:center;padding:16px">No jobs due this week 🎉</p>';
 
   // ── Supervisor Workload ──────────────────────────────
   var supMap={};
@@ -1099,8 +1101,8 @@ function renderDashboard(){
   var supRows=Object.keys(supMap).sort(function(a,b){return supMap[b].total-supMap[a].total;});
   id('dshSupTable').innerHTML = supRows.length
     ? '<table style="width:100%;border-collapse:collapse;font-size:12px">'
-      +'<thead><tr style="background:#f8fafc"><th style="padding:7px 10px;text-align:left;font-size:10px;font-weight:800;color:#64748b;text-transform:uppercase">Supervisor</th>'
-      +'<th style="padding:7px 10px;text-align:center;font-size:10px;font-weight:800;color:#64748b;text-transform:uppercase">Active</th>'
+      +'<thead><tr style="background:#f8fafc"><th style="padding:7px 10px;text-align:left;font-size:10px;font-weight:800;color:#374151;text-transform:uppercase">Supervisor</th>'
+      +'<th style="padding:7px 10px;text-align:center;font-size:10px;font-weight:800;color:#374151;text-transform:uppercase">Active</th>'
       +'<th style="padding:7px 10px;text-align:center;font-size:10px;font-weight:800;color:#ef4444;text-transform:uppercase">Overdue</th>'
       +'<th style="padding:7px 10px;text-align:center;font-size:10px;font-weight:800;color:#f59e0b;text-transform:uppercase">Urgent</th></tr></thead><tbody>'
       +supRows.map(function(s,i){
@@ -1109,12 +1111,12 @@ function renderDashboard(){
         return '<tr style="background:'+bg+';border-bottom:1px solid #f1f5f9">'
           +'<td style="padding:8px 10px;font-weight:700">'+esc(s)+'</td>'
           +'<td style="padding:8px 10px;text-align:center"><span style="background:#dbeafe;color:#1d4ed8;padding:2px 8px;border-radius:10px;font-weight:800">'+d.total+'</span></td>'
-          +'<td style="padding:8px 10px;text-align:center">'+(d.overdue?'<span style="background:#fef2f2;color:#dc2626;padding:2px 8px;border-radius:10px;font-weight:800">'+d.overdue+'</span>':'<span style="color:#94a3b8">—</span>')+'</td>'
-          +'<td style="padding:8px 10px;text-align:center">'+(d.urgent?'<span style="background:#fff7ed;color:#f59e0b;padding:2px 8px;border-radius:10px;font-weight:800">'+d.urgent+'</span>':'<span style="color:#94a3b8">—</span>')+'</td>'
+          +'<td style="padding:8px 10px;text-align:center">'+(d.overdue?'<span style="background:#fef2f2;color:#dc2626;padding:2px 8px;border-radius:10px;font-weight:800">'+d.overdue+'</span>':'<span style="color:#4b5563">—</span>')+'</td>'
+          +'<td style="padding:8px 10px;text-align:center">'+(d.urgent?'<span style="background:#fff7ed;color:#f59e0b;padding:2px 8px;border-radius:10px;font-weight:800">'+d.urgent+'</span>':'<span style="color:#4b5563">—</span>')+'</td>'
           +'</tr>';
       }).join('')
       +'</tbody></table>'
-    : '<p style="color:#94a3b8;font-size:12px">No active jobs</p>';
+    : '<p style="color:#4b5563;font-size:12px">No active jobs</p>';
 
   // ── Stage Load Grid ──────────────────────────────────
   var stageCount={};
@@ -1135,11 +1137,11 @@ function renderDashboard(){
       +'<div style="font-size:18px;font-weight:900;color:'+vc+'">'+cnt+'</div>'
       +'<div style="font-size:18px;font-weight:900;color:'+vc+'">'+cnt+'</div>'
       +'<div style="font-size:11px;font-weight:800;color:#0f172a;margin-top:2px">'+esc(p.code)+'</div>'
-      +'<div style="font-size:9px;color:#64748b">'+esc(p.name)+'</div>'
+      +'<div style="font-size:9px;color:#374151">'+esc(p.name)+'</div>'
       +(cnt>0?'<div style="font-size:9px;color:'+vc+';margin-top:4px;font-weight:700">'+(hot?'🔴 Heavy load':warm?'🟡 Busy':'')+'</div>':'')
       +'</div>';
   }).join('');
-  stageGrid.innerHTML = stageCards || '<p style="color:#94a3b8;font-size:12px">No processes defined</p>';
+  stageGrid.innerHTML = stageCards || '<p style="color:#4b5563;font-size:12px">No processes defined</p>';
 
   // ── Chart: Jobs by Company (bar) ─────────────────────
   var coMap={};
@@ -1259,7 +1261,7 @@ function renderProcess(){
   id('ptCount').textContent=list.length+' job'+(list.length!==1?'s':'');
   var tb=id('ptBody');
   if(!list.length){
-    tb.innerHTML='<tr><td colspan="9" style="text-align:center;padding:36px;color:#94a3b8">No jobs match the filters</td></tr>';
+    tb.innerHTML='<tr><td colspan="9" style="text-align:center;padding:36px;color:#4b5563">No jobs match the filters</td></tr>';
     return;
   }
 
@@ -1283,14 +1285,14 @@ function renderProcess(){
           +(isCur?'● ':isDone?'✓ ':'')+esc(code)+'</span>';
       });
     } else {
-      pipe+='<span style="color:#94a3b8;font-size:10px">No stages assigned</span>';
+      pipe+='<span style="color:#4b5563;font-size:10px">No stages assigned</span>';
     }
     pipe+='</div>';
 
     // Current stage badge
     var curBdg=j.CURRENT_STAGE
       ?'<span style="background:#fff7ed;color:#f97316;border:1.5px solid #f97316;padding:3px 8px;border-radius:6px;font-size:10px;font-weight:800">● '+esc(j.CURRENT_STAGE)+'</span>'
-      :'<span style="color:#94a3b8;font-size:11px">—</span>';
+      :'<span style="color:#4b5563;font-size:11px">—</span>';
 
     var sid=(j.STATUS||'RECEIVED').replace(' ','');
     var dodT=j.DOD?fmtDate(j.DOD):'-';
@@ -1300,7 +1302,7 @@ function renderProcess(){
     var rowBg=j.IS_OVERDUE?'background:#fef9f9':'';
 
     return '<tr onclick="openDetail(event,\''+j.JOB_ID+'\')" style="cursor:pointer;'+rowBg+'">'
-      +'<td><small style="color:#94a3b8;font-size:10px">'+esc(j.JOB_ID||'')+'</small></td>'
+      +'<td><small style="color:#4b5563;font-size:10px">'+esc(j.JOB_ID||'')+'</small></td>'
       +'<td><strong style="font-size:12px">'+esc(j.COMPANY||'')+'</strong></td>'
       +'<td style="max-width:180px;font-size:12px">'+esc(j.DESCRIPTION||'')+'</td>'
       +'<td style="font-size:12px">'+(j.QUANTITY||'-')+'</td>'
@@ -1371,22 +1373,22 @@ function openDetail(e, jid){
     });
     stepperHtml+='</div>';
   } else {
-    stepperHtml+='<p style="font-size:11px;color:#94a3b8;padding:8px 0">No stages assigned. Add from Other Processes below or edit the job.</p>';
+    stepperHtml+='<p style="font-size:11px;color:#4b5563;padding:8px 0">No stages assigned. Add from Other Processes below or edit the job.</p>';
   }
 
   // Other Processes — collapsible
   if(otherProcs.length && S.role!=='customer'){
     stepperHtml+='<div style="margin-top:8px">'
       +'<button onclick="var el=this.nextElementSibling;el.style.display=el.style.display===\'none\'?\'block\':\'none\'"'
-      +' style="background:none;border:1.5px dashed #e2e8f0;border-radius:7px;padding:6px 12px;cursor:pointer;font-size:11px;font-weight:700;color:#64748b;width:100%;text-align:left">'
+      +' style="background:none;border:1.5px dashed #e2e8f0;border-radius:7px;padding:6px 12px;cursor:pointer;font-size:11px;font-weight:700;color:#374151;width:100%;text-align:left">'
       +'➕ Other Processes ('+otherProcs.length+') — tap to add to this job</button>'
       +'<div style="display:none;margin-top:6px;display:none">'
       +'<div class="stage-stepper">';
     otherProcs.forEach(function(p){
       stepperHtml+='<div class="sstep" onclick="addProcToJob(\''+jid+'\',\''+p.code+'\')" style="opacity:.6;border-style:dashed">'
-        +'<div class="sstep-dot" style="background:#f1f5f9;border-color:#e2e8f0;color:#94a3b8;font-size:9px">+</div>'
+        +'<div class="sstep-dot" style="background:#f1f5f9;border-color:#e2e8f0;color:#4b5563;font-size:9px">+</div>'
         +'<div class="sstep-info"><div class="sstep-code">'+esc(p.code)+'</div><div class="sstep-name">'+esc(p.name)+'</div></div>'
-        +'<span style="font-size:9px;color:#94a3b8">Add</span>'
+        +'<span style="font-size:9px;color:#4b5563">Add</span>'
         +'</div>';
     });
     stepperHtml+='</div></div></div>';
@@ -1671,7 +1673,7 @@ function closeCM(){ id('cmOv').classList.remove('on'); }
 
 function renderCMGrid(){
   var grid=id('cmGrid');
-  if(!S.companies.length){ grid.innerHTML='<p style="color:#94a3b8;font-size:13px;margin-top:8px">No companies yet. Add one above.</p>'; return; }
+  if(!S.companies.length){ grid.innerHTML='<p style="color:#4b5563;font-size:13px;margin-top:8px">No companies yet. Add one above.</p>'; return; }
   grid.innerHTML=S.companies.map(function(c){
     var acBadge=c.active?'<span class="badge-active">Active</span>':'<span class="badge-inactive">Inactive</span>';
     var restoreBtn=!c.active?'<button class="cm-act-btn cm-act-restore" onclick="cAct(\''+esc(c.name)+'\',\'activate\')">Restore</button>':'';
@@ -1759,13 +1761,13 @@ function closePM(){ id('pmOv').classList.remove('on'); PM.editingCode=null; }
 
 function renderPMTable(){
   var rows=S.processes;
-  if(!rows.length){ id('pmBody').innerHTML='<tr><td colspan="5" style="text-align:center;color:#94a3b8;padding:24px">No processes.</td></tr>'; return; }
+  if(!rows.length){ id('pmBody').innerHTML='<tr><td colspan="5" style="text-align:center;color:#4b5563;padding:24px">No processes.</td></tr>'; return; }
   id('pmBody').innerHTML=rows.map(function(p,i){
     if(PM.editingCode===p.code) return pmEditRowHtml(p,i);
     var ac=p.active?'<span class="badge-active">Active</span>':'<span class="badge-inactive">Inactive</span>';
     var restBtn=!p.active?'<button class="pm-act-btn pm-restore-btn" onclick="pmRestore(\''+p.code+'\')">Restore</button>':'';
     return '<tr class="'+(p.active?'':'pm-inactive')+'">'
-      +'<td style="color:#94a3b8;font-size:11px;text-align:center">'+(i+1)+'</td>'
+      +'<td style="color:#4b5563;font-size:11px;text-align:center">'+(i+1)+'</td>'
       +'<td class="pm-code">'+esc(p.code)+'</td><td>'+esc(p.name)+'</td><td>'+ac+'</td>'
       +'<td><div class="pm-act-btns">'
         +'<button class="pm-act-btn pm-edit-btn" onclick="pmEdit(\''+p.code+'\')">✏️ Edit</button>'
@@ -1777,7 +1779,7 @@ function renderPMTable(){
 
 function pmEditRowHtml(p,i){
   return '<tr class="pm-edit-row">'
-    +'<td style="color:#94a3b8;font-size:11px;text-align:center">'+(i+1)+'</td>'
+    +'<td style="color:#4b5563;font-size:11px;text-align:center">'+(i+1)+'</td>'
     +'<td><input class="pm-edit-inp" id="pe-code" value="'+esc(p.code)+'" placeholder="Code"></td>'
     +'<td><input class="pm-edit-inp" id="pe-name" value="'+esc(p.name)+'" placeholder="Display name"></td>'
     +'<td><select class="pm-edit-inp" id="pe-active">'
@@ -1786,7 +1788,7 @@ function pmEditRowHtml(p,i){
     +'</select></td>'
     +'<td><div class="pm-act-btns">'
       +'<button class="pm-act-btn pm-edit-btn" onclick="pmSaveEdit(\''+p.code+'\')">💾 Save</button>'
-      +'<button class="pm-act-btn" style="border-color:#e2e8f0;color:#64748b" onclick="pmCancelEdit()">Cancel</button>'
+      +'<button class="pm-act-btn" style="border-color:#e2e8f0;color:#374151" onclick="pmCancelEdit()">Cancel</button>'
     +'</div></td></tr>';
 }
 
@@ -1800,7 +1802,7 @@ function pmAddRow(){
     +'<td><select class="pm-edit-inp" id="pe-active"><option value="true">Active</option><option value="false">Inactive</option></select></td>'
     +'<td><div class="pm-act-btns">'
       +'<button class="pm-act-btn pm-edit-btn" onclick="pmSaveNew()">💾 Add</button>'
-      +'<button class="pm-act-btn" style="border-color:#e2e8f0;color:#64748b" onclick="pmCancelEdit()">Cancel</button>'
+      +'<button class="pm-act-btn" style="border-color:#e2e8f0;color:#374151" onclick="pmCancelEdit()">Cancel</button>'
     +'</div></td>';
   tbody.appendChild(nr);
 }
@@ -1868,7 +1870,7 @@ function openModal(e, jid){
     var k=p.code.replace(/[/]/g,'_');
     return '<label class="sg-item" id="sl-'+k+'">'
       +'<input type="checkbox" id="sc-'+k+'" value="'+p.code+'" onchange="chkStg(this)"> '
-      +p.code+'<small style="color:#94a3b8;font-size:9px;margin-left:3px">'+p.name+'</small></label>';
+      +p.code+'<small style="color:#4b5563;font-size:9px;margin-left:3px">'+p.name+'</small></label>';
   }).join('');
 
   if(jid){
@@ -1975,16 +1977,16 @@ function closeSM(){ id('smOv').classList.remove('on'); SM.editing=null; }
 function renderSMTable(){
   var sups = S.supervisorMaster || S.supervisors.map(function(s){return{name:s,role:'',active:true};});
   if(!sups.length){
-    id('smBody').innerHTML='<tr><td colspan="5" style="text-align:center;color:#94a3b8;padding:20px">No supervisors. Add one above.</td></tr>';
+    id('smBody').innerHTML='<tr><td colspan="5" style="text-align:center;color:#4b5563;padding:20px">No supervisors. Add one above.</td></tr>';
     return;
   }
   id('smBody').innerHTML = sups.map(function(s,i){
     if(SM.editing===s.name) return smEditRowHtml(s,i);
     var ac=s.active!==false?'<span class="badge-active">Active</span>':'<span class="badge-inactive">Inactive</span>';
     return '<tr class="'+(s.active!==false?'':'pm-inactive')+'">'
-      +'<td style="color:#94a3b8;font-size:11px;text-align:center">'+(i+1)+'</td>'
+      +'<td style="color:#4b5563;font-size:11px;text-align:center">'+(i+1)+'</td>'
       +'<td style="font-weight:800;font-size:13px">'+esc(s.name)+'</td>'
-      +'<td style="font-size:12px;color:#64748b">'+esc(s.role||'—')+'</td>'
+      +'<td style="font-size:12px;color:#374151">'+esc(s.role||'—')+'</td>'
       +'<td>'+ac+'</td>'
       +'<td><div class="pm-act-btns">'
       +'<td><div class="pm-act-btns">'
@@ -1996,7 +1998,7 @@ function renderSMTable(){
 
 function smEditRowHtml(s,i){
   return '<tr class="pm-edit-row">'
-    +'<td style="color:#94a3b8;font-size:11px;text-align:center">'+(i+1)+'</td>'
+    +'<td style="color:#4b5563;font-size:11px;text-align:center">'+(i+1)+'</td>'
     +'<td><input class="pm-edit-inp" id="sm-name" value="'+esc(s.name||'')+'" placeholder="Full name"></td>'
     +'<td><input class="pm-edit-inp" id="sm-role" value="'+esc(s.role||'')+'" placeholder="e.g. VMC Operator"></td>'
     +'<td><select class="pm-edit-inp" id="sm-active">'
@@ -2005,7 +2007,7 @@ function smEditRowHtml(s,i){
     +'</select></td>'
     +'<td><div class="pm-act-btns">'
       +'<button class="pm-act-btn pm-edit-btn" onclick="smSave(this.dataset.n)" data-n="'+esc(s.name||'')+'">💾 Save</button>'
-      +'<button class="pm-act-btn" style="border-color:#e2e8f0;color:#64748b" onclick="smCancel()">Cancel</button>'
+      +'<button class="pm-act-btn" style="border-color:#e2e8f0;color:#374151" onclick="smCancel()">Cancel</button>'
     +'</div></td></tr>';
 }
 
@@ -2019,7 +2021,7 @@ function smAddRow(){
     +'<td><select class="pm-edit-inp" id="sm-active"><option value="true">Active</option><option value="false">Inactive</option></select></td>'
     +'<td><div class="pm-act-btns">'
       +'<button class="pm-act-btn pm-edit-btn" onclick="smSaveNew()">💾 Add</button>'
-      +'<button class="pm-act-btn" style="border-color:#e2e8f0;color:#64748b" onclick="smCancel()">Cancel</button>'
+      +'<button class="pm-act-btn" style="border-color:#e2e8f0;color:#374151" onclick="smCancel()">Cancel</button>'
     +'</div></td>';
   tbody.appendChild(nr);
 }
