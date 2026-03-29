@@ -319,11 +319,11 @@ tbody td{padding:9px 14px;color:#374151}
 .pm-edit-row td{padding:6px 8px}
 .pm-edit-inp{padding:6px 9px;border:1.5px solid #f97316;border-radius:6px;font-size:12px;width:100%;background:#fff}
 
-/* ── CLOUDINARY SETUP ─────────────────── */
-.cld-setup{background:#f0f9ff;border:1.5px solid #bae6fd;border-radius:10px;padding:16px;margin-bottom:16px}
-.cld-setup h4{font-size:13px;font-weight:800;color:#0369a1;margin-bottom:6px}
-.cld-setup p{font-size:11px;color:#0369a1;line-height:1.6;margin-bottom:10px}
-.cld-setup a{color:#0369a1;font-weight:700}
+/* ── GOOGLE DRIVE SETUP ─────────────────── */
+.gd-setup{background:#f0fdf4;border:1.5px solid #86efac;border-radius:10px;padding:16px;margin-bottom:16px}
+.gd-setup h4{font-size:13px;font-weight:800;color:#15803d;margin-bottom:6px}
+.gd-setup p{font-size:11px;color:#15803d;line-height:1.6;margin-bottom:10px}
+.gd-setup a{color:#15803d;font-weight:700}
 
 /* ── MISC ─────────────────────────── */
 .empty{text-align:center;padding:32px 16px;color:#4b5563}
@@ -392,6 +392,7 @@ tbody td{padding:9px 14px;color:#374151}
       <button class="hdr-btn" id="cmBtn" onclick="openCM()" style="display:none">🏭 Customers</button>
       <button class="hdr-btn" id="smBtn" onclick="openSM()" style="display:none">👤 Supervisors</button>
       <button class="hdr-btn" id="pmBtn" onclick="openPM()" style="display:none">⚙️ Processes</button>
+      <button class="hdr-btn" id="gdBtn" onclick="openGD()" style="display:none">🗂️ Drive</button>
       <span id="hRole" class="role-badge">Admin</span>
       <button class="logout-btn" onclick="logout()">Logout</button>
     </div>
@@ -711,36 +712,32 @@ tbody td{padding:9px 14px;color:#374151}
   </div>
 </div>
 
-<!-- ════ CLOUDINARY SETUP MODAL ════ -->
-<div class="ov" id="cldOv" onclick="if(event.target===this)closeCLD()" style="z-index:1200">
-  <div class="modal" style="max-width:520px">
-    <div class="mhdr"><h2>☁️ Cloudinary Setup</h2><button class="mcls" onclick="closeCLD()">×</button></div>
+<!-- ════ GOOGLE DRIVE SETUP MODAL ════ -->
+<div class="ov" id="gdOv" onclick="if(event.target===this)closeGD()" style="z-index:1200">
+  <div class="modal" style="max-width:540px">
+    <div class="mhdr"><h2>🗂️ Google Drive Setup</h2><button class="mcls" onclick="closeGD()">×</button></div>
     <div class="mbody">
-      <div class="cld-setup">
-        <h4>Free Drawing Storage — 25GB</h4>
+      <div class="gd-setup">
+        <h4>Save drawings directly to your Google Drive</h4>
         <p>
-          1. Create a free account at <a href="https://cloudinary.com" target="_blank">cloudinary.com</a><br>
-          2. Go to <b>Settings → Upload Presets → Add Upload Preset</b><br>
-          3. ⚠️ <b style="color:#dc2626">IMPORTANT: Set Signing Mode = UNSIGNED</b> (not Signed) → Save<br>
-          4. Copy your <b>Cloud Name</b> from the Dashboard top-left and the <b>Preset Name</b> below
+          1. Open <b>script.google.com</b> → New project<br>
+          2. Paste the <b>Code.gs</b> file from this repo into the editor<br>
+          3. Click <b>Deploy → New deployment → Web app</b><br>
+          4. Set <b>Execute as: Me</b> and <b>Who has access: Anyone (even anonymous)</b><br>
+          5. Click Deploy → copy the <b>Web App URL</b> → paste below
         </p>
-        <div style="background:#fef2f2;border:1.5px solid #fca5a5;border-radius:8px;padding:10px 12px;font-size:11px;color:#dc2626;font-weight:700">
-          ⚠️ Most upload errors are caused by leaving the preset as "Signed". Make sure it is set to <u>Unsigned</u>.
+        <div style="background:#dcfce7;border:1px solid #86efac;border-radius:6px;padding:8px 12px;font-size:11px;color:#15803d;font-weight:700">
+          📁 Files will be saved in a folder called <b>NTE Job Drawings</b> in that Google account's Drive.
         </div>
       </div>
-      <div class="fg"><label>Cloud Name</label>
-        <input type="text" id="cldName" placeholder="e.g. dxyz12abc — from Cloudinary Dashboard top-left"></div>
-      <div class="fg"><label>Upload Preset Name</label>
-        <input type="text" id="cldPreset" placeholder="e.g. NTETRACKER — exact name from Upload Presets"></div>
-      <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:10px 12px;font-size:11px;color:#15803d;margin-bottom:4px">
-        ✅ Your preset <b>NTETRACKER</b> is correctly set to <b>Unsigned</b>. Just make sure the Cloud Name below matches your dashboard.
-      </div>
-      <button class="btn btn-ghost btn-sm" style="margin-top:4px" onclick="testCLD()">🔌 Test Connection</button>
-      <div id="cldTestResult" style="display:none;margin-top:8px;padding:9px 12px;border-radius:7px;font-size:12px;font-weight:600"></div>
+      <div class="fg"><label>Apps Script Web App URL</label>
+        <input type="text" id="gdUrl" placeholder="https://script.google.com/macros/s/…/exec"></div>
+      <button class="btn btn-ghost btn-sm" style="margin-top:4px" onclick="testGD()">🔌 Test Connection</button>
+      <div id="gdTestResult" style="display:none;margin-top:8px;padding:9px 12px;border-radius:7px;font-size:12px;font-weight:600"></div>
     </div>
     <div class="mftr">
-      <button class="btn btn-secondary" onclick="closeCLD()">Cancel</button>
-      <button class="btn btn-primary" onclick="saveCLD()">💾 Save & Enable Drawing Upload</button>
+      <button class="btn btn-secondary" onclick="closeGD()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveGD()">💾 Save & Enable Drive Upload</button>
     </div>
   </div>
 </div>
@@ -761,7 +758,7 @@ var S = {
   role:null, token:null,
   jobs:[], companies:[], supervisors:[], supervisorMaster:[], processes:[], filtered:[],
   view:'kanban', q:'', curJob:null,
-  cloudinary:{cloudName:'',uploadPreset:''},
+  drive:{scriptUrl:''},
   dwPendingJobId:null, dwPendingContext:null
 };
 var STATUS_ORDER = ['RECEIVED','IN PROGRESS','QC','READY','DISPATCHED'];
@@ -819,7 +816,7 @@ function afterLogin(role){
   id('mainApp').style.display='block';
   id('hRole').textContent=role.toUpperCase();
   if(role!=='customer') id('addBtn').style.display='flex';
-  if(role==='admin'){ id('pmBtn').style.display='flex'; id('cmBtn').style.display='flex'; id('smBtn').style.display='flex'; }
+  if(role==='admin'){ id('pmBtn').style.display='flex'; id('cmBtn').style.display='flex'; id('smBtn').style.display='flex'; id('gdBtn').style.display='flex'; }
   loadData();
 }
 
@@ -853,9 +850,8 @@ async function loadData(){
     S.supervisors=allSups.filter(function(s){return s.active!==false;}).map(function(s){return s.name;});
     S.processes=(results[3].data||[]).map(function(p){return {code:p.code,name:p.display_name,order:p.sort_order,active:p.active!==false};});
     var cfg=results[4].data||[];
-    S.cloudinary={
-      cloudName:(cfg.find(function(r){return r.key==='CLOUDINARY_CLOUD_NAME';})||{}).value||'',
-      uploadPreset:(cfg.find(function(r){return r.key==='CLOUDINARY_UPLOAD_PRESET';})||{}).value||''
+    S.drive={
+      scriptUrl:(cfg.find(function(r){return r.key==='GDRIVE_SCRIPT_URL';})||{}).value||''
     };
     buildFilters(); filt();
   } catch(e){ load(false); toast('Load error: '+e.message,'err'); }
@@ -1398,7 +1394,8 @@ function openDetail(e, jid){
 
   var drwHtml='<div class="dp-lbl" style="margin-top:14px">Drawing / Document</div>';
   if(j.DRAWING_URL){
-    var isImg=/\.(png|jpg|jpeg|webp)/i.test(j.DRAWING_URL);
+    var isDrive=j.DRAWING_URL.indexOf('drive.google.com')!==-1;
+    var isImg=!isDrive&&/\.(png|jpg|jpeg|webp)/i.test(j.DRAWING_URL);
     drwHtml+='<div class="drw-card">';
     if(isImg) drwHtml+='<img src="'+j.DRAWING_URL+'" style="width:100%;border-radius:6px;margin-bottom:8px;max-height:160px;object-fit:contain;background:#f8fafc">';
     drwHtml+='<div class="drw-card-top"><div class="drw-icon">'+(isImg?'🖼️':'📄')+'</div>'
@@ -1412,7 +1409,7 @@ function openDetail(e, jid){
     }
     drwHtml+='</div></div>';
   } else if(S.role!=='customer'){
-    var cldOk=S.cloudinary.cloudName&&S.cloudinary.uploadPreset;
+    var cldOk=S.drive.scriptUrl;
     if(cldOk){
       drwHtml+='<div class="no-drawing">'
         +'<p>No drawing attached</p>'
@@ -1421,7 +1418,7 @@ function openDetail(e, jid){
     } else {
       drwHtml+='<div class="no-drawing">'
         +'<p>No drawing attached</p>'
-        +'<button class="btn btn-sm btn-ghost" onclick="openCLD()">☁️ Setup Cloudinary first</button>'
+        +'<button class="btn btn-sm btn-ghost" onclick="openGD()">🗂️ Setup Google Drive first</button>'
         +'</div>';
     }
   }
@@ -1543,104 +1540,77 @@ function triggerDwUpload(jid, context){
   id('dwFileInput').click();
 }
 
-async function handleDwFile(input){
+function handleDwFile(input){
   var file=input.files[0];
   if(!file) return;
-  if(file.size>10*1024*1024){ toast('File too large. Max 10MB','err'); return; }
-  var cn=S.cloudinary.cloudName, preset=S.cloudinary.uploadPreset;
-  if(!cn||!preset){ toast('Setup Cloudinary first','err'); openCLD(); return; }
+  if(file.size>20*1024*1024){ toast('File too large. Max 20MB','err'); return; }
+  var scriptUrl=S.drive.scriptUrl;
+  if(!scriptUrl){ toast('Setup Google Drive first','err'); openGD(); return; }
 
   load(true);
-  var fd=new FormData();
-  fd.append('file', file);
-  fd.append('upload_preset', preset);
-  fd.append('folder', 'NTE-Drawings');
-
-  try{
-    var resp=await fetch('https://api.cloudinary.com/v1_1/'+cn+'/auto/upload',{method:'POST',body:fd});
-    var data=await resp.json();
-    if(data.secure_url){
-      var url=data.secure_url, name=file.name;
-      var res=await db.rpc('nte_update_drawing',{p_token:S.token,p_job_id:S.dwPendingJobId,p_url:url,p_name:name});
-      load(false);
-      if(res.data&&res.data.success){
-        var j=S.jobs.find(function(x){return x.JOB_ID===S.dwPendingJobId;});
-        if(j){j.DRAWING_URL=url;j.DRAWING_NAME=name;}
-        toast('Drawing uploaded ✓','ok'); filt();
-        if(S.dwPendingContext==='detail')
-          openDetail({stopPropagation:function(){}},S.dwPendingJobId);
-      } else { load(false); toast('Save failed','err'); }
-    } else {
-      load(false);
-      var errMsg=data.error&&data.error.message?data.error.message:'Unknown error';
-      var errLow=errMsg.toLowerCase();
-      if(errLow.indexOf('unknown api key')!==-1||errLow.indexOf('api key')!==-1){
-        showCldError('❌ Cloud Name is incorrect.\n\nThe Cloud Name you entered does not match any Cloudinary account.\n\nFix: Go to cloudinary.com → login → look at the top-left of your Dashboard for your Cloud Name (e.g. dxyz12abc) → paste it exactly in ⚙️ Cloudinary Setup.');
-      } else if(errLow.indexOf('unknown upload preset')!==-1||errLow.indexOf('preset')!==-1){
-        showCldError('❌ Upload Preset name is wrong.\n\nFix: Go to Cloudinary → Settings → Upload Presets → copy the preset name exactly (e.g. NTETRACKER) → paste it in ⚙️ Cloudinary Setup.\n\nNote: preset names are case-sensitive.');
-      } else if(errLow.indexOf('must use upload preset')!==-1||errLow.indexOf('unsigned')!==-1){
-        showCldError('❌ Upload Preset is set to SIGNED mode.\n\nFix: Go to Cloudinary → Settings → Upload Presets → click your preset → change Signing Mode to UNSIGNED → Save.');
+  var reader=new FileReader();
+  reader.onload=async function(ev){
+    try{
+      var base64=ev.target.result.split(',')[1];
+      var payload={data:base64,name:file.name,type:file.type,jobId:S.dwPendingJobId||''};
+      var resp=await fetch(scriptUrl,{method:'POST',body:JSON.stringify(payload)});
+      var data=await resp.json();
+      if(data.success&&data.url){
+        var url=data.url, name=file.name;
+        var res=await db.rpc('nte_update_drawing',{p_token:S.token,p_job_id:S.dwPendingJobId,p_url:url,p_name:name});
+        load(false);
+        if(res.data&&res.data.success){
+          var j=S.jobs.find(function(x){return x.JOB_ID===S.dwPendingJobId;});
+          if(j){j.DRAWING_URL=url;j.DRAWING_NAME=name;}
+          toast('Drawing saved to Drive ✓','ok'); filt();
+          if(S.dwPendingContext==='detail')
+            openDetail({stopPropagation:function(){}},S.dwPendingJobId);
+        } else { load(false); toast('Save failed','err'); }
       } else {
-        showCldError('❌ Upload failed: '+errMsg+'\n\nCheck that your Cloud Name and Preset Name are correct in ⚙️ Cloudinary Setup.');
+        load(false);
+        toast('Drive upload failed: '+(data.error||'Unknown error')+'\n\nCheck Drive Setup URL is correct.','err');
       }
-    }
-  } catch(e){ load(false); toast('Network error — check internet connection','err'); }
+    } catch(e){ load(false); toast('Upload error — check Drive Setup URL and try again','err'); }
+  };
+  reader.readAsDataURL(file);
 }
 
-function showCldError(msg){
-  // Show error in a dedicated alert dialog with fix instructions
-  var box=document.createElement('div');
-  box.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px';
-  box.innerHTML='<div style="background:#fff;border-radius:14px;padding:28px;max-width:440px;width:100%;box-shadow:0 20px 50px rgba(0,0,0,.3)">'
-    +'<div style="font-size:22px;margin-bottom:10px">☁️ Cloudinary Error</div>'
-    +'<p style="font-size:13px;color:#374151;line-height:1.7;white-space:pre-wrap;background:#fef2f2;padding:12px;border-radius:8px;border:1px solid #fecaca">'+msg+'</p>'
-    +'<div style="display:flex;gap:8px;margin-top:16px;justify-content:flex-end">'
-    +'<button onclick="this.closest(\'div[style*=fixed]\').remove();openCLD();" style="background:#f97316;color:#fff;padding:8px 16px;border-radius:7px;border:none;cursor:pointer;font-weight:700;font-size:13px">⚙️ Fix Settings</button>'
-    +'<button onclick="this.closest(\'div[style*=fixed]\').remove()" style="background:#f1f5f9;color:#374151;padding:8px 16px;border-radius:7px;border:none;cursor:pointer;font-weight:700;font-size:13px">Close</button>'
-    +'</div></div>';
-  document.body.appendChild(box);
-}
-
-function testCLD(){
-  var cn=id('cldName').value.trim(), up=id('cldPreset').value.trim();
-  var res=id('cldTestResult');
-  if(!cn||!up){ res.style.display='block'; res.style.background='#fef2f2'; res.style.color='#dc2626'; res.textContent='⚠️ Enter both Cloud Name and Preset Name first.'; return; }
+function testGD(){
+  var url=id('gdUrl').value.trim();
+  var res=id('gdTestResult');
+  if(!url){ res.style.display='block'; res.style.background='#fef2f2'; res.style.color='#dc2626'; res.textContent='⚠️ Paste the Apps Script Web App URL first.'; return; }
   res.style.display='block'; res.style.background='#f1f5f9'; res.style.color='#374151'; res.textContent='⏳ Testing connection…';
-  // Upload a tiny 1px transparent PNG to test
-  var tiny='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
-  fetch(tiny).then(function(r){return r.blob();}).then(function(blob){
-    var fd=new FormData();
-    fd.append('file', blob, 'test.png');
-    fd.append('upload_preset', up);
-    return fetch('https://api.cloudinary.com/v1_1/'+cn+'/image/upload',{method:'POST',body:fd});
-  }).then(function(r){return r.json();}).then(function(data){
-    if(data.secure_url){
-      res.style.background='#f0fdf4'; res.style.color='#15803d';
-      res.textContent='✅ Connection successful! Cloud Name and Preset are correct. Click Save.';
-    } else {
-      var errMsg=data.error&&data.error.message?data.error.message:'Unknown error';
-      var errLow=errMsg.toLowerCase();
+  // Send a tiny 1-byte test payload
+  var tiny='iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVQI12NgAAIABQAABjE+ibYAAAAASUVORK5CYII=';
+  fetch(url,{method:'POST',body:JSON.stringify({data:tiny,name:'test.png',type:'image/png',jobId:'TEST'})})
+    .then(function(r){return r.json();})
+    .then(function(data){
+      if(data.success){
+        res.style.background='#f0fdf4'; res.style.color='#15803d';
+        res.textContent='✅ Connected! Drive is ready. Click Save.';
+      } else {
+        res.style.background='#fef2f2'; res.style.color='#dc2626';
+        res.textContent='❌ Script returned error: '+(data.error||'unknown');
+      }
+    }).catch(function(){
       res.style.background='#fef2f2'; res.style.color='#dc2626';
-      if(errLow.indexOf('api key')!==-1||errLow.indexOf('unknown api')!==-1)
-        res.textContent='❌ Wrong Cloud Name — check your Cloudinary Dashboard top-left for the exact name.';
-      else if(errLow.indexOf('preset')!==-1)
-        res.textContent='❌ Preset name not found — check spelling. It is case-sensitive.';
-      else if(errLow.indexOf('unsigned')!==-1||errLow.indexOf('must use')!==-1)
-        res.textContent='❌ Preset must be set to Unsigned in Cloudinary settings.';
-      else
-        res.textContent='❌ Error: '+errMsg;
-    }
-  }).catch(function(){ res.style.background='#fef2f2'; res.style.color='#dc2626'; res.textContent='❌ Network error — check internet connection.'; });
+      res.textContent='❌ Could not reach the URL — check it is deployed as a Web App with Anyone access.';
+    });
 }
 
 async function removeDrawing(jid){
   if(!confirm('Remove the attached drawing?')) return;
   load(true);
   try{
+    var j=S.jobs.find(function(x){return x.JOB_ID===jid;});
+    // Try to delete file from Drive too
+    if(j&&j.DRAWING_URL&&S.drive.scriptUrl&&j.DRAWING_URL.indexOf('drive.google.com')!==-1){
+      var m=j.DRAWING_URL.match(/\/d\/([^\/]+)\//);
+      if(m) fetch(S.drive.scriptUrl,{method:'POST',body:JSON.stringify({action:'delete',fileId:m[1]})}).catch(function(){});
+    }
     var res=await db.rpc('nte_update_drawing',{p_token:S.token,p_job_id:jid,p_url:'',p_name:''});
     load(false);
     if(res.data&&res.data.success){
-      var j=S.jobs.find(function(x){return x.JOB_ID===jid;});
       if(j){j.DRAWING_URL='';j.DRAWING_NAME='';}
       toast('Drawing removed','ok'); filt();
       openDetail({stopPropagation:function(){}},jid);
@@ -1648,21 +1618,21 @@ async function removeDrawing(jid){
   } catch(e){ load(false); toast('Error: '+e.message,'err'); }
 }
 
-// ── Cloudinary setup ───────────────────────────────────
-function openCLD(){
-  id('cldName').value=S.cloudinary.cloudName||'';
-  id('cldPreset').value=S.cloudinary.uploadPreset||'';
-  id('cldOv').classList.add('on');
+// ── Google Drive setup ───────────────────────────────────
+function openGD(){
+  id('gdUrl').value=S.drive.scriptUrl||'';
+  id('gdTestResult').style.display='none';
+  id('gdOv').classList.add('on');
 }
-function closeCLD(){ id('cldOv').classList.remove('on'); }
-async function saveCLD(){
-  var cn=id('cldName').value.trim(), up=id('cldPreset').value.trim();
-  if(!cn||!up){ toast('Both fields required','err'); return; }
+function closeGD(){ id('gdOv').classList.remove('on'); }
+async function saveGD(){
+  var url=id('gdUrl').value.trim();
+  if(!url){ toast('Paste the Web App URL first','err'); return; }
   load(true);
   try{
-    var res=await db.rpc('nte_save_cloudinary',{p_token:S.token,p_cloud_name:cn,p_upload_preset:up});
+    var res=await db.rpc('nte_save_gdrive',{p_token:S.token,p_script_url:url});
     load(false);
-    if(res.data&&res.data.success){S.cloudinary={cloudName:cn,uploadPreset:up};closeCLD();toast('Cloudinary configured ✓','ok');}
+    if(res.data&&res.data.success){S.drive={scriptUrl:url};closeGD();toast('Google Drive configured ✓','ok');}
     else toast('Save failed','err');
   } catch(e){ load(false); toast('Error: '+e.message,'err'); }
 }
@@ -2085,7 +2055,7 @@ async function refreshSupervisors(){
   buildFilters(); renderSMTable();
 }
 
-document.addEventListener('keydown',function(e){if(e.key==='Escape'){closeDetail();closeModal();closePM();closeCM();closeCE();closeCLD();closeSM();}});
+document.addEventListener('keydown',function(e){if(e.key==='Escape'){closeDetail();closeModal();closePM();closeCM();closeCE();closeGD();closeSM();}});
 setInterval(function(){if(S.role)loadData();},180000);
 
 // ── Session restore on page load ───────────────────────
