@@ -621,6 +621,26 @@ tbody td{padding:9px 14px;color:#374151}
         <input type="text" id="fmBill" placeholder="e.g. BILL-1478-09.03.26"></div>
       <div class="fg" style="margin-top:4px"><label>Notes / Remarks</label>
         <textarea id="fmNotes"></textarea></div>
+      <div class="sec-ttl">Drawing / Document</div>
+      <div id="njDrwZone" class="drw-zone" onclick="id('njFileInput').click()"
+           ondragover="event.preventDefault();this.classList.add('drag')"
+           ondragleave="this.classList.remove('drag')"
+           ondrop="njDropFile(event)">
+        <div class="dz-icon">📎</div>
+        <p>Click or drag &amp; drop a drawing / PDF here</p>
+        <p style="font-size:10px;color:#9ca3af;margin-top:4px">PDF, PNG, JPG up to 20MB</p>
+      </div>
+      <div id="njDrwPreview" style="display:none" class="drw-existing">
+        <span id="njDrwIcon" style="font-size:20px">📄</span>
+        <span class="drw-existing-name" id="njDrwName"></span>
+        <div class="drw-existing-btns">
+          <button class="btn btn-sm btn-ghost" onclick="id('njFileInput').click()">🔄 Change</button>
+          <button class="btn btn-sm" style="background:#fef2f2;color:#dc2626;border:1px solid #fecaca;border-radius:6px" onclick="clearNjFile()">✕</button>
+        </div>
+      </div>
+      <div id="njNoDrive" style="display:none;background:#fff7ed;border:1px solid #fed7aa;border-radius:8px;padding:10px 14px;font-size:12px;color:#92400e;margin-top:6px">
+        ⚠️ <b>Google Drive not set up.</b> <a href="#" onclick="closeModal();openGD();return false" style="color:#f97316">Configure Drive</a> to enable drawing uploads.
+      </div>
     </div>
     <div class="mftr">
       <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
@@ -742,8 +762,9 @@ tbody td{padding:9px 14px;color:#374151}
   </div>
 </div>
 
-<!-- Drawing upload input (hidden) -->
+<!-- Drawing upload inputs (hidden) -->
 <input type="file" id="dwFileInput" accept=".pdf,.png,.jpg,.jpeg,.webp" style="display:none" onchange="handleDwFile(this)">
+<input type="file" id="njFileInput" accept=".pdf,.png,.jpg,.jpeg,.webp" style="display:none" onchange="handleNjFile(this)">
 
 <div class="loading-ov" id="loader"><div class="spin"></div></div>
 <div id="toast"></div>
@@ -759,7 +780,8 @@ var S = {
   jobs:[], companies:[], supervisors:[], supervisorMaster:[], processes:[], filtered:[],
   view:'kanban', q:'', curJob:null,
   drive:{scriptUrl:''},
-  dwPendingJobId:null, dwPendingContext:null
+  dwPendingJobId:null, dwPendingContext:null,
+  njPendingFile:null
 };
 var STATUS_ORDER = ['RECEIVED','IN PROGRESS','QC','READY','DISPATCHED'];
 var STATUS_ID    = {'RECEIVED':'RECEIVED','IN PROGRESS':'INPROGRESS','QC':'QC','READY':'READY','DISPATCHED':'DISPATCHED'};
@@ -1395,17 +1417,20 @@ function openDetail(e, jid){
   var drwHtml='<div class="dp-lbl" style="margin-top:14px">Drawing / Document</div>';
   if(j.DRAWING_URL){
     var isDrive=j.DRAWING_URL.indexOf('drive.google.com')!==-1;
-    var isImg=!isDrive&&/\.(png|jpg|jpeg|webp)/i.test(j.DRAWING_URL);
+    var isPdf=isDrive||/\.pdf$/i.test(j.DRAWING_URL);
+    var isImg=!isPdf&&/\.(png|jpg|jpeg|webp)/i.test(j.DRAWING_URL);
+    var previewUrl=isDrive?j.DRAWING_URL.replace('/view','/preview').replace(/\/view\?.*$/,'/preview'):j.DRAWING_URL;
     drwHtml+='<div class="drw-card">';
-    if(isImg) drwHtml+='<img src="'+j.DRAWING_URL+'" style="width:100%;border-radius:6px;margin-bottom:8px;max-height:160px;object-fit:contain;background:#f8fafc">';
+    if(isImg) drwHtml+='<img src="'+j.DRAWING_URL+'" style="width:100%;border-radius:6px;margin-bottom:8px;max-height:200px;object-fit:contain;background:#f8fafc">';
+    if(isPdf&&isDrive) drwHtml+='<iframe src="'+previewUrl+'" style="width:100%;height:220px;border:none;border-radius:6px;margin-bottom:8px;background:#f8fafc" allowfullscreen></iframe>';
     drwHtml+='<div class="drw-card-top"><div class="drw-icon">'+(isImg?'🖼️':'📄')+'</div>'
       +'<div class="drw-info"><div class="drw-fname">'+esc(j.DRAWING_NAME||'Drawing')+'</div>'
-      +'<div class="drw-hint">Tap Preview to open full size</div></div></div>'
+      +'<div class="drw-hint">'+(isPdf?'PDF Document':'Image')+'</div></div></div>'
       +'<div class="drw-btns">'
-      +'<a href="'+j.DRAWING_URL+'" target="_blank" class="drw-btn drw-preview-btn">👁 Preview</a>';
+      +'<a href="'+j.DRAWING_URL+'" target="_blank" class="drw-btn drw-preview-btn">👁 View</a>';
     if(S.role!=='customer'){
-      drwHtml+='<button class="drw-btn drw-change-btn" onclick="triggerDwUpload(\''+jid+'\',\'detail\')">🔄 Replace</button>'
-        +'<button class="drw-btn drw-remove-btn" onclick="removeDrawing(\''+jid+'\')">✕ Remove</button>';
+      drwHtml+='<button class="drw-btn drw-change-btn" onclick="triggerDwUpload(\''+jid+'\',\'detail\')">🔄 Revision</button>'
+        +'<button class="drw-btn drw-remove-btn" onclick="removeDrawing(\''+jid+'\')">✕ Delete</button>';
     }
     drwHtml+='</div></div>';
   } else if(S.role!=='customer'){
@@ -1413,7 +1438,7 @@ function openDetail(e, jid){
     if(cldOk){
       drwHtml+='<div class="no-drawing">'
         +'<p>No drawing attached</p>'
-        +'<button class="btn btn-sm btn-ghost" onclick="triggerDwUpload(\''+jid+'\',\'detail\')">📎 Attach Drawing</button>'
+        +'<button class="btn btn-sm btn-ghost" onclick="triggerDwUpload(\''+jid+'\',\'detail\')">📎 Attach Drawing / PDF</button>'
         +'</div>';
     } else {
       drwHtml+='<div class="no-drawing">'
@@ -1573,6 +1598,51 @@ function handleDwFile(input){
     } catch(e){ load(false); toast('Upload error — check Drive Setup URL and try again','err'); }
   };
   reader.readAsDataURL(file);
+}
+
+// ── New Job modal drawing helpers ──────────────────────────
+function handleNjFile(input){
+  var file=input.files[0];
+  if(!file) return;
+  if(file.size>20*1024*1024){ toast('File too large. Max 20MB','err'); return; }
+  S.njPendingFile=file;
+  id('njDrwZone').style.display='none';
+  id('njDrwPreview').style.display='flex';
+  id('njDrwIcon').textContent=/\.(png|jpg|jpeg|webp)/i.test(file.name)?'🖼️':'📄';
+  id('njDrwName').textContent=file.name;
+}
+function njDropFile(ev){
+  ev.preventDefault();
+  id('njDrwZone').classList.remove('drag');
+  var file=ev.dataTransfer&&ev.dataTransfer.files[0];
+  if(file){ var dt=new DataTransfer(); dt.items.add(file); id('njFileInput').files=dt.files; handleNjFile(id('njFileInput')); }
+}
+function clearNjFile(){
+  S.njPendingFile=null;
+  id('njFileInput').value='';
+  id('njDrwZone').style.display='';
+  id('njDrwPreview').style.display='none';
+}
+async function uploadDrawingForJob(jobId,file){
+  return new Promise(function(resolve){
+    var reader=new FileReader();
+    reader.onload=async function(ev){
+      try{
+        var base64=ev.target.result.split(',')[1];
+        var payload={data:base64,name:file.name,type:file.type,jobId:jobId};
+        var resp=await fetch(S.drive.scriptUrl,{method:'POST',body:JSON.stringify(payload)});
+        var data=await resp.json();
+        if(data.success&&data.url){
+          await db.rpc('nte_update_drawing',{p_token:S.token,p_job_id:jobId,p_url:data.url,p_name:file.name});
+          toast('Drawing uploaded to Drive ✓','ok');
+        } else {
+          toast('Job saved but drawing upload failed: '+(data.error||'unknown'),'err');
+        }
+      } catch(e){ toast('Job saved but drawing upload failed','err'); }
+      resolve();
+    };
+    reader.readAsDataURL(file);
+  });
 }
 
 function testGD(){
@@ -1870,6 +1940,12 @@ function openModal(e, jid){
     setV('fmRcv',new Date().toISOString().split('T')[0]);
     setV('fmDOD',''); id('delBtn').style.display='none';
   }
+  // Reset drawing zone
+  S.njPendingFile=null;
+  id('njFileInput').value='';
+  id('njDrwZone').style.display='';
+  id('njDrwPreview').style.display='none';
+  id('njNoDrive').style.display=S.drive.scriptUrl?'none':'block';
   id('mOv').classList.add('on');
 }
 
@@ -1902,7 +1978,18 @@ async function saveJob(){
   try{
     var res=await db.rpc('nte_save_job',{p_token:S.token,p_data:data});
     load(false);
-    if(res.data&&res.data.success){closeModal();toast('Job '+(res.data.action||'saved')+'!','ok');loadData();}
+    if(res.data&&res.data.success){
+      var savedJobId=res.data.job_id;
+      closeModal();
+      toast('Job '+(res.data.action||'saved')+'!','ok');
+      if(S.njPendingFile&&S.drive.scriptUrl){
+        load(true);
+        await uploadDrawingForJob(savedJobId,S.njPendingFile);
+        S.njPendingFile=null;
+        load(false);
+      }
+      loadData();
+    }
     else toast('Error: '+((res.data&&res.data.error)||'Unknown'),'err');
   } catch(e){ load(false); toast('Save failed: '+e.message,'err'); }
 }
