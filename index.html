@@ -249,6 +249,29 @@ tbody td{padding:9px 14px;color:#374151}
   padding:14px;text-align:center;margin-top:6px}
 .no-drawing p{font-size:11px;color:#4b5563;margin-bottom:8px}
 
+/* ── OUTSOURCE ───────────────────────────────────── */
+.os-hdr{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+.os-hdr h3{font-size:14px;font-weight:800;color:#0f172a;margin-right:auto}
+.os-tab{padding:6px 14px;border-radius:6px;border:1.5px solid #e2e8f0;cursor:pointer;font-size:12px;font-weight:700;background:#fff;color:#374151;transition:all .2s}
+.os-tab.active{background:#f97316;color:#fff;border-color:#f97316}
+.sstep-out{background:#fffbeb;border-color:#f59e0b}
+.sstep-out .sstep-dot{background:#fef3c7;border-color:#f59e0b;color:#d97706}
+.sstep-out .sstep-code{color:#b45309}
+.send-out-btn{padding:3px 8px;border-radius:5px;border:1px solid #fb923c;background:#fff7ed;color:#ea580c;cursor:pointer;font-size:10px;font-weight:700;margin-left:auto;flex-shrink:0;white-space:nowrap}
+.send-out-btn:hover{background:#fed7aa}
+.os-vendor-tag{font-size:9px;color:#d97706;background:#fef3c7;border:1px solid #f59e0b;padding:2px 6px;border-radius:4px;margin-left:auto;flex-shrink:0}
+/* ── REJECT BADGE ───────── */
+.bdg-rej{background:#fef2f2;color:#dc2626;border:1px solid #fca5a5}
+/* ── OVM (Outsource Vendor Master) ─── */
+.ovm-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;margin-top:12px}
+.ovm-card{background:#fff;border:1.5px solid #e2e8f0;border-radius:10px;padding:14px;transition:all .2s}
+.ovm-card:hover{border-color:#f97316;box-shadow:0 4px 12px rgba(0,0,0,.08)}
+.ovm-card.inactive{opacity:.5;border-style:dashed}
+.ovm-name{font-size:14px;font-weight:800;color:#0f172a;margin-bottom:4px}
+.ovm-procs{font-size:10px;color:#374151;margin-bottom:6px;line-height:1.5}
+.ovm-detail{font-size:11px;color:#374151;margin-bottom:3px}
+.ovm-actions{display:flex;gap:6px;margin-top:10px;padding-top:10px;border-top:1px solid #f1f5f9}
+
 /* ── STAGE STEPPER ─────────────────── */
 .stage-stepper{display:flex;flex-direction:column;gap:4px;margin-top:8px}
 .sstep{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:8px;
@@ -393,6 +416,7 @@ tbody td{padding:9px 14px;color:#374151}
       <button class="hdr-btn" id="smBtn" onclick="openSM()" style="display:none">👤 Supervisors</button>
       <button class="hdr-btn" id="pmBtn" onclick="openPM()" style="display:none">⚙️ Processes</button>
       <button class="hdr-btn" id="gdBtn" onclick="openGD()" style="display:none">🗂️ Drive</button>
+      <button class="hdr-btn" id="osBtn" onclick="setView('outsource')" style="display:none">🔄 Outsource</button>
       <span id="hRole" class="role-badge">Admin</span>
       <button class="logout-btn" onclick="logout()">Logout</button>
     </div>
@@ -534,6 +558,27 @@ tbody td{padding:9px 14px;color:#374151}
             <th>Stage Progress</th><th>Drw</th><th>Priority</th><th>Status</th><th>Action</th>
           </tr></thead>
           <tbody id="tBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Outsource View -->
+    <div id="outsourceView" style="display:none">
+      <div class="os-hdr">
+        <h3>🔄 Outsourced Jobs</h3>
+        <button class="os-tab active" id="osTabAct" onclick="osTab('active')">⏳ Active</button>
+        <button class="os-tab" id="osTabCls" onclick="osTab('closed')">✓ Closed</button>
+        <span id="osCount" style="font-size:12px;color:#374151;font-weight:600"></span>
+        <button class="btn btn-ghost btn-sm" id="osVmBtn" onclick="openOVM()" style="display:none">🏭 Manage Vendors</button>
+      </div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr>
+            <th>Job ID</th><th>Company</th><th>Description</th><th>Qty</th>
+            <th>Stage</th><th>Vendor</th><th>Date Sent</th><th>Days Out</th>
+            <th id="osLastColHdr">Action</th>
+          </tr></thead>
+          <tbody id="osBody"></tbody>
         </table>
       </div>
     </div>
@@ -762,6 +807,97 @@ tbody td{padding:9px 14px;color:#374151}
   </div>
 </div>
 
+<!-- ════ OUTSOURCE VENDOR MASTER MODAL ════ -->
+<div class="ov" id="ovmOv" onclick="if(event.target===this)closeOVM()">
+  <div class="modal" style="max-width:900px">
+    <div class="mhdr">
+      <h2>🏭 Outsource Vendors</h2>
+      <button class="mcls" onclick="closeOVM()">×</button>
+    </div>
+    <div class="mbody" id="ovmBody">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+        <p style="font-size:12px;color:#374151">Third-party vendors who handle outsourced processes.</p>
+        <button class="btn btn-primary btn-sm" onclick="openOVMEdit(null)">+ Add Vendor</button>
+      </div>
+      <div class="ovm-grid" id="ovmGrid"></div>
+    </div>
+    <div class="mftr"><button class="btn btn-secondary" onclick="closeOVM()">Close</button></div>
+  </div>
+</div>
+
+<!-- ════ OUTSOURCE VENDOR EDIT MODAL ════ -->
+<div class="ov" id="oveOv" onclick="if(event.target===this)closeOVE()">
+  <div class="modal" style="max-width:520px">
+    <div class="mhdr"><h2 id="oveTitle">Add Vendor</h2><button class="mcls" onclick="closeOVE()">×</button></div>
+    <div class="mbody">
+      <input type="hidden" id="oveId">
+      <div class="fg"><label>Vendor Name *</label><input type="text" id="oveName" placeholder="e.g. Sharma Heat Treatment"></div>
+      <div class="fg"><label>Contact Person</label><input type="text" id="oveContact"></div>
+      <div class="fg"><label>Phone</label><input type="text" id="ovePhone"></div>
+      <div class="fg"><label>Processes they offer</label>
+        <div id="oveProcGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:6px;margin-top:4px;padding:10px;border:1.5px solid #e5e7eb;border-radius:8px;max-height:180px;overflow-y:auto"></div>
+        <input type="text" id="oveCustomProc" placeholder="+ Other process not in list (press Enter)" style="margin-top:6px;width:100%;padding:8px 12px;border:1.5px solid #e5e7eb;border-radius:8px;font-size:13px">
+        <div id="oveCustomTags" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px"></div>
+      </div>
+    </div>
+    <div class="mftr">
+      <button class="btn btn-secondary" onclick="closeOVE()">Cancel</button>
+      <button id="oveDelBtn" class="btn btn-danger" style="display:none" onclick="deleteOV()">🗑 Delete</button>
+      <button class="btn btn-primary" onclick="saveOV()">💾 Save Vendor</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════ SEND TO OUTSOURCE MODAL ════ -->
+<div class="ov" id="soOv" onclick="if(event.target===this)closeSO()">
+  <div class="modal" style="max-width:400px">
+    <div class="mhdr"><h2>↗ Send to Outsource</h2><button class="mcls" onclick="closeSO()">×</button></div>
+    <div class="mbody">
+      <div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:8px;padding:10px 12px;margin-bottom:14px;font-size:12px;color:#92400e">
+        Stage: <strong id="soStageName"></strong>
+      </div>
+      <div class="fg"><label>Vendor *</label><select id="soVendor"></select></div>
+      <div class="fg"><label>Date Sent</label><input type="date" id="soDate"></div>
+    </div>
+    <div class="mftr">
+      <button class="btn btn-secondary" onclick="closeSO()">Cancel</button>
+      <button class="btn btn-primary" onclick="confirmSendOut()">↗ Send Out</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════ RECEIVE BACK MODAL ════ -->
+<div class="ov" id="rcvOv" onclick="if(event.target===this)closeRCV()">
+  <div class="modal" style="max-width:400px">
+    <div class="mhdr"><h2>✅ Received Back</h2><button class="mcls" onclick="closeRCV()">×</button></div>
+    <div class="mbody">
+      <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:10px 12px;margin-bottom:14px;font-size:12px;color:#15803d">
+        <strong id="rcvInfo"></strong>
+      </div>
+      <div class="fg"><label>Date Received Back</label><input type="date" id="rcvDate"></div>
+    </div>
+    <div class="mftr">
+      <button class="btn btn-secondary" onclick="closeRCV()">Cancel</button>
+      <button class="btn btn-primary" onclick="confirmReceive()">✅ Mark Received</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════ REJECT MODAL ════ -->
+<div class="ov" id="rejOv" onclick="if(event.target===this)closeRej()">
+  <div class="modal" style="max-width:360px">
+    <div class="mhdr"><h2>⚠️ Mark Rejection</h2><button class="mcls" onclick="closeRej()">×</button></div>
+    <div class="mbody">
+      <div class="fg"><label>Rejected Pieces (replaces existing count)</label>
+        <input type="number" id="rejQty" min="0" placeholder="e.g. 2"></div>
+    </div>
+    <div class="mftr">
+      <button class="btn btn-secondary" onclick="closeRej()">Cancel</button>
+      <button class="btn btn-primary" onclick="confirmReject()">Save</button>
+    </div>
+  </div>
+</div>
+
 <!-- Drawing upload inputs (hidden) -->
 <input type="file" id="dwFileInput" accept=".pdf,.png,.jpg,.jpeg,.webp" style="display:none" onchange="handleDwFile(this)">
 <input type="file" id="njFileInput" accept=".pdf,.png,.jpg,.jpeg,.webp" style="display:none" onchange="handleNjFile(this)">
@@ -781,7 +917,10 @@ var S = {
   view:'kanban', q:'', curJob:null,
   drive:{scriptUrl:''},
   dwPendingJobId:null, dwPendingContext:null,
-  njPendingFile:null
+  njPendingFile:null,
+  outsourceVendors:[], outsourceLog:[], outsourceView:'active',
+  soJobId:null, soStage:null, soStageName:null,
+  rcvLogId:null, rejJobId:null
 };
 var STATUS_ORDER = ['RECEIVED','IN PROGRESS','QC','READY','DISPATCHED'];
 var STATUS_ID    = {'RECEIVED':'RECEIVED','IN PROGRESS':'INPROGRESS','QC':'QC','READY':'READY','DISPATCHED':'DISPATCHED'};
@@ -802,6 +941,7 @@ function dbToJob(r){
     CHALLAN_NO:r.challan_no, CHALLAN_DATE:r.challan_date,
     BILL_NO:r.bill_no, BILL_DATE:r.bill_date,
     NOTES:r.notes, DRAWING_URL:r.drawing_url, DRAWING_NAME:r.drawing_name,
+    REJECTED_QTY:r.rejected_qty||0,
     CREATED_AT:r.created_at, UPDATED_AT:r.updated_at
   };
 }
@@ -838,7 +978,8 @@ function afterLogin(role){
   id('mainApp').style.display='block';
   id('hRole').textContent=role.toUpperCase();
   if(role!=='customer') id('addBtn').style.display='flex';
-  if(role==='admin'){ id('pmBtn').style.display='flex'; id('cmBtn').style.display='flex'; id('smBtn').style.display='flex'; id('gdBtn').style.display='flex'; }
+  if(role!=='customer') id('osBtn').style.display='flex';
+  if(role==='admin'){ id('pmBtn').style.display='flex'; id('cmBtn').style.display='flex'; id('smBtn').style.display='flex'; id('gdBtn').style.display='flex'; id('osVmBtn').style.display='flex'; }
   loadData();
 }
 
@@ -860,7 +1001,9 @@ async function loadData(){
       db.from('companies').select('*').order('name'),
       db.from('supervisors').select('*').order('name'),
       db.from('processes').select('*').order('sort_order'),
-      db.from('config').select('*')
+      db.from('config').select('*'),
+      db.from('outsource_vendors').select('*').order('name'),
+      db.from('outsource_log').select('*').order('created_at',{ascending:false})
     ]);
     load(false);
     S.jobs=(results[0].data||[]).map(function(r){return enrichJob(dbToJob(r));});
@@ -875,7 +1018,12 @@ async function loadData(){
     S.drive={
       scriptUrl:(cfg.find(function(r){return r.key==='GDRIVE_SCRIPT_URL';})||{}).value||''
     };
+    S.outsourceVendors=(results[5].data||[]).map(function(v){
+      return {id:v.id,name:v.name,processes:v.processes||[],contact:v.contact||'',phone:v.phone||'',active:v.active!==false};
+    });
+    S.outsourceLog=(results[6].data||[]);
     buildFilters(); filt();
+    if(S.view==='outsource') renderOutsource();
   } catch(e){ load(false); toast('Load error: '+e.message,'err'); }
 }
 
@@ -1011,11 +1159,12 @@ function card(j){
   var typBdg=j.JOB_TYPE==='WITH MATERIAL'?'<span class="bdg b-mat">📦</span>':'<span class="bdg b-lab">🔧</span>';
   var ovBdg=ov?'<span class="bdg b-ov">⚠️ '+j.DAYS_OVERDUE+'d</span>':'';
   var drwBdg=j.DRAWING_URL?'<span class="bdg b-drw">📄 DRW</span>':'';
+  var rejBdg=j.REJECTED_QTY>0?'<span class="bdg bdg-rej">✕ '+j.REJECTED_QTY+' Rej</span>':'';
   return '<div class="'+cls+'" onclick="openDetail(event,\''+j.JOB_ID+'\')">'
     +'<div class="cid">'+(j.JOB_ID||'')+' · '+(j.JOB_CARD_NO||j.DRG_NO||'')+'</div>'
     +'<div class="cdesc">'+esc(j.DESCRIPTION||'No description')+'</div>'
     +'<div class="cco">🏭 '+esc(j.COMPANY||'')+'</div>'
-    +'<div class="cbadges">'+priBdg+typBdg+ovBdg+drwBdg+'</div>'
+    +'<div class="cbadges">'+priBdg+typBdg+ovBdg+drwBdg+rejBdg+'</div>'
     +miniStageBar(j)
     +'<div class="cmeta"><span class="'+dodCls+'">'+(ov?'⚠️ ':'📅 ')+dodTxt+(ov&&j.DAYS_OVERDUE?' ('+j.DAYS_OVERDUE+'d late)':'')+'</span>'
     +'<span class="cqty">×'+(j.QUANTITY||'?')+'</span></div>'
@@ -1062,6 +1211,7 @@ function setView(v){
   id('tableView').style.display     = v==='table'     ? 'block' : 'none';
   id('processView').style.display   = v==='process'   ? 'block' : 'none';
   id('dashboardView').style.display = v==='dashboard' ? 'block' : 'none';
+  id('outsourceView').style.display = v==='outsource' ? 'block' : 'none';
   id('ptCtrlBar').style.display     = v==='process'   ? 'flex'  : 'none';
   id('vKan').className='vbtn'+(v==='kanban'?' active':'');
   id('vTbl').className='vbtn'+(v==='table'?' active':'');
@@ -1071,6 +1221,7 @@ function setView(v){
   if(v==='kanban') renderKanban();
   else if(v==='table') renderTable();
   else if(v==='process') renderProcess();
+  else if(v==='outsource') renderOutsource();
   else renderDashboard();
 }
 
@@ -1380,14 +1531,21 @@ function openDetail(e, jid){
     assignedProcs.forEach(function(p){
       var stg=stages.find(function(s){return s.stage===p.code;});
       var isDone=stg&&stg.done, isCur=j.CURRENT_STAGE===p.code;
-      var cls='sstep'+(isCur?' current':isDone?' done':'');
-      var dotTxt=isCur?'▶':isDone?'✓':p.code.substring(0,2);
-      var click=S.role!=='customer'?'onclick="setStage(\''+jid+'\',\''+p.code+'\')"':'';
+      var isOut=stg&&stg.outsourced&&!isDone;
+      var cls='sstep'+(isCur?' current':isDone?' done':isOut?' sstep-out':'');
+      var dotTxt=isCur?'▶':isDone?'✓':isOut?'↗':p.code.substring(0,2);
+      var click=(S.role!=='customer'&&!isOut)?'onclick="setStage(\''+jid+'\',\''+p.code+'\')"':'';
       var dateHtml=stg&&stg.date?'<span class="sstep-date">'+stg.date+'</span>':'';
-      stepperHtml+='<div class="'+cls+'" '+click+'>'
+      var rightHtml='';
+      if(isOut){
+        rightHtml='<span class="os-vendor-tag">⏳ '+esc(stg.vendor_name||'Outsourced')+(stg.date_sent?' · '+stg.date_sent:'')+'</span>';
+      } else if(S.role!=='customer'&&!isDone){
+        rightHtml='<button class="send-out-btn" onclick="event.stopPropagation();openSendOut(\''+jid+'\',\''+p.code+'\',\''+esc(p.name)+'\')">↗ Send Out</button>';
+      }
+      stepperHtml+='<div class="'+cls+'" '+click+' style="position:relative">'
         +'<div class="sstep-dot">'+dotTxt+'</div>'
         +'<div class="sstep-info"><div class="sstep-code">'+esc(p.code)+'</div><div class="sstep-name">'+esc(p.name)+'</div></div>'
-        +dateHtml+'</div>';
+        +dateHtml+rightHtml+'</div>';
     });
     stepperHtml+='</div>';
   } else {
@@ -1479,6 +1637,21 @@ function openDetail(e, jid){
   body+='<hr class="dp-divider">';
   body+='<div class="dp-lbl">Process Stage Tracking</div>'+stepperHtml;
   body+='<hr class="dp-divider">'+drwHtml;
+  // Rejection section
+  var rejHtml='<div class="dp-lbl" style="margin-top:14px">Rejection</div>';
+  if(j.REJECTED_QTY>0){
+    rejHtml+='<div style="background:#fef2f2;border:1.5px solid #fca5a5;border-radius:8px;padding:10px 14px;display:flex;align-items:center;gap:10px;margin-top:6px">'
+      +'<span style="font-size:20px">⚠️</span>'
+      +'<div style="flex:1"><div style="font-size:13px;font-weight:800;color:#dc2626">'+j.REJECTED_QTY+' piece(s) rejected</div></div>'
+      +(S.role!=='customer'?'<button class="drw-btn drw-change-btn" onclick="openReject(\''+jid+'\')">Update</button>':'')
+      +'</div>';
+  } else if(S.role!=='customer'){
+    rejHtml+='<div class="no-drawing" style="margin-top:6px">'
+      +'<p>No rejections recorded</p>'
+      +'<button class="btn btn-sm btn-ghost" onclick="openReject(\''+jid+'\')">⚠️ Mark Rejection</button>'
+      +'</div>';
+  }
+  body+='<hr class="dp-divider">'+rejHtml;
   body+='<hr class="dp-divider">'+stBtns+dispHtml;
 
   if(j.NOTES) body+='<div class="dp-lbl" style="margin-top:14px">Notes</div>'
@@ -1686,6 +1859,245 @@ async function removeDrawing(jid){
       openDetail({stopPropagation:function(){}},jid);
     } else toast('Error','err');
   } catch(e){ load(false); toast('Error: '+e.message,'err'); }
+}
+
+// ── Outsource Page ──────────────────────────────────────
+function osTab(tab){
+  S.outsourceView=tab;
+  id('osTabAct').className='os-tab'+(tab==='active'?' active':'');
+  id('osTabCls').className='os-tab'+(tab==='closed'?' active':'');
+  renderOutsource();
+}
+
+function renderOutsource(){
+  var isActive=S.outsourceView==='active';
+  var rows=S.outsourceLog.filter(function(r){return isActive?!r.date_received:!!r.date_received;});
+  id('osCount').textContent=rows.length+' record(s)';
+  id('osLastColHdr').textContent=isActive?'Action':'Date Received';
+  var tb=id('osBody');
+  if(!rows.length){ tb.innerHTML='<tr><td colspan="9" style="text-align:center;padding:36px;color:#4b5563">No records</td></tr>'; return; }
+  var today=new Date(); today.setHours(0,0,0,0);
+  tb.innerHTML=rows.map(function(r){
+    var job=S.jobs.find(function(j){return j.JOB_ID===r.job_id;});
+    var desc=job?esc(job.DESCRIPTION||''):'—';
+    var co=job?esc(job.COMPANY||''):'—';
+    var qty=job?(job.QUANTITY||'—'):'—';
+    var sent=r.date_sent||'—';
+    var daysOut='—';
+    if(r.date_sent){
+      var ds=new Date(r.date_sent.split('.').reverse().join('-')); ds.setHours(0,0,0,0);
+      var ref=r.date_received?new Date(r.date_received.split('.').reverse().join('-')):today;
+      ref.setHours(0,0,0,0);
+      daysOut=Math.max(0,Math.round((ref-ds)/86400000))+'d';
+    }
+    var lastCol=isActive
+      ?(S.role!=='customer'?'<button class="btn btn-sm" style="background:#f0fdf4;color:#15803d;border:1px solid #86efac;font-size:11px" onclick="openRCV('+r.id+',\''+esc(r.vendor_name||'')+'\',\''+esc(r.stage)+'\')">✅ Received</button>':'—')
+      :(r.date_received||'—');
+    return '<tr onclick="if(event.target.tagName!==\'BUTTON\')openDetail(event,\''+r.job_id+'\')" style="cursor:pointer">'
+      +'<td><small style="color:#4b5563;font-size:10px">'+esc(r.job_id)+'</small></td>'
+      +'<td style="font-size:12px">'+co+'</td>'
+      +'<td style="font-size:12px;max-width:160px">'+desc+'</td>'
+      +'<td style="font-size:12px">'+qty+'</td>'
+      +'<td><span style="background:#fff7ed;color:#b45309;border:1px solid #f59e0b;padding:2px 7px;border-radius:5px;font-size:11px;font-weight:700">'+esc(r.stage)+'</span></td>'
+      +'<td style="font-size:12px;font-weight:600">'+esc(r.vendor_name||'—')+'</td>'
+      +'<td style="font-size:11px;color:#374151">'+sent+'</td>'
+      +'<td style="font-size:11px;color:'+(daysOut!=='—'&&parseInt(daysOut)>7?'#dc2626':'#374151')+'">'+daysOut+'</td>'
+      +'<td>'+lastCol+'</td>'
+      +'</tr>';
+  }).join('');
+}
+
+// ── Outsource Vendor Master ─────────────────────────────
+function openOVM(){
+  renderOVMGrid();
+  id('ovmOv').classList.add('on');
+}
+function closeOVM(){ id('ovmOv').classList.remove('on'); }
+
+function renderOVMGrid(){
+  var vendors=S.outsourceVendors;
+  if(!vendors.length){ id('ovmGrid').innerHTML='<p style="font-size:12px;color:#374151;padding:16px 0">No vendors yet. Add one to get started.</p>'; return; }
+  id('ovmGrid').innerHTML=vendors.map(function(v){
+    var procList=(v.processes||[]).join(', ')||'—';
+    var cls='ovm-card'+(v.active?'':' inactive');
+    return '<div class="'+cls+'">'
+      +'<div class="ovm-name">'+esc(v.name)+'</div>'
+      +'<div class="ovm-procs">🔧 '+esc(procList)+'</div>'
+      +(v.contact?'<div class="ovm-detail">👤 '+esc(v.contact)+'</div>':'')
+      +(v.phone?'<div class="ovm-detail">📞 '+esc(v.phone)+'</div>':'')
+      +'<div class="ovm-actions">'
+      +'<button class="cm-act-btn cm-edit-btn" onclick="openOVMEdit('+v.id+')">✏️ Edit</button>'
+      +'<button class="cm-act-btn" style="border-color:#fca5a5;color:#dc2626;background:#fef2f2" onclick="deleteOV('+v.id+')">🗑 Delete</button>'
+      +'</div></div>';
+  }).join('');
+}
+
+function openOVMEdit(vid){
+  var v=vid?S.outsourceVendors.find(function(x){return x.id===vid;}):null;
+  id('oveTitle').textContent=v?'Edit Vendor':'Add Vendor';
+  id('oveId').value=v?v.id:'';
+  id('oveName').value=v?v.name:'';
+  id('oveContact').value=v?v.contact:'';
+  id('ovePhone').value=v?v.phone:'';
+  id('oveDelBtn').style.display=v?'block':'none';
+  // Build process checkboxes
+  var procs=S.processes.filter(function(p){return p.active;});
+  var selProcs=v?(v.processes||[]):[];
+  // Custom procs = ones in selProcs not in standard list
+  var stdCodes=procs.map(function(p){return p.code;});
+  var customProcs=selProcs.filter(function(c){return stdCodes.indexOf(c)===-1;});
+  id('oveProcGrid').innerHTML=procs.map(function(p){
+    var chk=selProcs.indexOf(p.code)!==-1?'checked':'';
+    return '<label style="display:flex;align-items:center;gap:5px;font-size:11px;cursor:pointer;padding:4px 6px;border:1px solid #e2e8f0;border-radius:5px;background:#fff">'
+      +'<input type="checkbox" value="'+esc(p.code)+'" '+chk+' style="accent-color:#f97316"> '+esc(p.code)+'</label>';
+  }).join('');
+  id('oveCustomProc').value='';
+  id('oveCustomTags').innerHTML=customProcs.map(function(c){
+    return '<span style="background:#e0f2fe;color:#0369a1;padding:3px 8px;border-radius:12px;font-size:11px;font-weight:600;cursor:pointer" onclick="removeCustomProc(this,\''+esc(c)+'\')">'+esc(c)+' ×</span>';
+  }).join('');
+  id('oveOv').classList.add('on');
+}
+function closeOVE(){ id('oveOv').classList.remove('on'); }
+
+function removeCustomProc(el, code){
+  el.remove();
+}
+
+id('oveCustomProc') && document.getElementById('oveCustomProc').addEventListener('keydown', function(e){
+  if(e.key==='Enter'){
+    e.preventDefault();
+    var val=this.value.trim().toUpperCase();
+    if(!val) return;
+    var tags=id('oveCustomTags');
+    // Check not already there
+    var existing=Array.from(tags.querySelectorAll('span')).map(function(s){return s.textContent.replace(' ×','').trim();});
+    if(existing.indexOf(val)!==-1){this.value='';return;}
+    tags.innerHTML+='<span style="background:#e0f2fe;color:#0369a1;padding:3px 8px;border-radius:12px;font-size:11px;font-weight:600;cursor:pointer" onclick="removeCustomProc(this,\''+val+'\')">'+val+' ×</span>';
+    this.value='';
+  }
+});
+
+async function saveOV(){
+  var name=id('oveName').value.trim();
+  if(!name){ toast('Vendor name required','err'); return; }
+  var vid=id('oveId').value;
+  // Collect processes
+  var procs=[];
+  Array.from(id('oveProcGrid').querySelectorAll('input[type=checkbox]')).forEach(function(cb){
+    if(cb.checked) procs.push(cb.value);
+  });
+  Array.from(id('oveCustomTags').querySelectorAll('span')).forEach(function(sp){
+    var txt=sp.textContent.replace(' ×','').trim();
+    if(txt&&procs.indexOf(txt)===-1) procs.push(txt);
+  });
+  var payload={name:name,contact:id('oveContact').value,phone:id('ovePhone').value,processes:JSON.stringify(procs),active:true};
+  if(vid) payload.id=vid;
+  load(true);
+  try{
+    var res=await db.rpc('nte_save_outsource_vendor',{p_token:S.token,p_data:payload});
+    load(false);
+    if(res.data&&res.data.success){
+      closeOVE(); toast('Vendor saved','ok'); loadData();
+    } else toast('Save failed: '+((res.data&&res.data.error)||'unknown'),'err');
+  }catch(e){load(false);toast('Error: '+e.message,'err');}
+}
+
+async function deleteOV(vid){
+  var vidToUse=vid||id('oveId').value;
+  if(!vidToUse||!confirm('Delete this vendor?')) return;
+  load(true);
+  try{
+    var res=await db.rpc('nte_delete_outsource_vendor',{p_token:S.token,p_id:parseInt(vidToUse)});
+    load(false);
+    if(res.data&&res.data.success){closeOVE();toast('Vendor deleted','ok');loadData();}
+    else toast('Failed','err');
+  }catch(e){load(false);toast('Error: '+e.message,'err');}
+}
+
+// ── Send Out ───────────────────────────────────────────
+function openSendOut(jid, stage, stageName){
+  if(!S.drive||!S.outsourceVendors.length){ toast('No vendors configured. Add a vendor first.','err'); return; }
+  var activeVendors=S.outsourceVendors.filter(function(v){return v.active;});
+  if(!activeVendors.length){ toast('No active vendors. Add a vendor first.','err'); return; }
+  S.soJobId=jid; S.soStage=stage; S.soStageName=stageName;
+  id('soStageName').textContent=stage+' — '+stageName;
+  var sel=id('soVendor');
+  sel.innerHTML=activeVendors.map(function(v){return '<option value="'+v.id+'">'+esc(v.name)+'</option>';}).join('');
+  id('soDate').value=new Date().toISOString().split('T')[0];
+  id('soOv').classList.add('on');
+}
+function closeSO(){ id('soOv').classList.remove('on'); }
+
+async function confirmSendOut(){
+  var vid=parseInt(id('soVendor').value);
+  var dateRaw=id('soDate').value;
+  if(!vid||!dateRaw){ toast('Select vendor and date','err'); return; }
+  var vendor=S.outsourceVendors.find(function(v){return v.id===vid;});
+  if(!vendor) return;
+  var d=new Date(dateRaw);
+  var dateFmt=(d.getDate()<10?'0':'')+d.getDate()+'.'+(d.getMonth()<9?'0':'')+(d.getMonth()+1)+'.'+String(d.getFullYear()).slice(2);
+  load(true);
+  try{
+    var res=await db.rpc('nte_send_outsource',{
+      p_token:S.token, p_job_id:S.soJobId, p_stage:S.soStage,
+      p_vendor_id:vid, p_vendor_name:vendor.name, p_date_sent:dateFmt
+    });
+    load(false);
+    if(res.data&&res.data.success){
+      closeSO(); toast('Sent to '+vendor.name,'ok'); loadData();
+    } else toast('Failed: '+((res.data&&res.data.error)||'unknown'),'err');
+  }catch(e){load(false);toast('Error: '+e.message,'err');}
+}
+
+// ── Receive Back ───────────────────────────────────────
+function openRCV(logId, vendorName, stage){
+  S.rcvLogId=logId;
+  id('rcvInfo').textContent=stage+' — '+vendorName;
+  id('rcvDate').value=new Date().toISOString().split('T')[0];
+  id('rcvOv').classList.add('on');
+}
+function closeRCV(){ id('rcvOv').classList.remove('on'); }
+
+async function confirmReceive(){
+  var dateRaw=id('rcvDate').value;
+  if(!dateRaw){ toast('Select date','err'); return; }
+  var d=new Date(dateRaw);
+  var dateFmt=(d.getDate()<10?'0':'')+d.getDate()+'.'+(d.getMonth()<9?'0':'')+(d.getMonth()+1)+'.'+String(d.getFullYear()).slice(2);
+  load(true);
+  try{
+    var res=await db.rpc('nte_receive_outsource',{p_token:S.token,p_log_id:S.rcvLogId,p_date_received:dateFmt});
+    load(false);
+    if(res.data&&res.data.success){
+      closeRCV(); toast('Marked as received ✓','ok'); loadData();
+    } else toast('Failed: '+((res.data&&res.data.error)||'unknown'),'err');
+  }catch(e){load(false);toast('Error: '+e.message,'err');}
+}
+
+// ── Reject ──────────────────────────────────────────────
+function openReject(jid){
+  S.rejJobId=jid;
+  var j=S.jobs.find(function(x){return x.JOB_ID===jid;});
+  id('rejQty').value=j&&j.REJECTED_QTY?j.REJECTED_QTY:'';
+  id('rejOv').classList.add('on');
+}
+function closeRej(){ id('rejOv').classList.remove('on'); }
+
+async function confirmReject(){
+  var qty=parseInt(id('rejQty').value);
+  if(isNaN(qty)||qty<0){ toast('Enter a valid number','err'); return; }
+  load(true);
+  try{
+    var res=await db.rpc('nte_reject_job',{p_token:S.token,p_job_id:S.rejJobId,p_qty:qty});
+    load(false);
+    if(res.data&&res.data.success){
+      closeRej();
+      var j=S.jobs.find(function(x){return x.JOB_ID===S.rejJobId;});
+      if(j){j.REJECTED_QTY=qty;}
+      toast(qty===0?'Rejection cleared':'Rejection updated: '+qty+' piece(s)','ok');
+      filt();
+      if(S.curJob===S.rejJobId) openDetail({stopPropagation:function(){}},S.rejJobId);
+    } else toast('Failed','err');
+  }catch(e){load(false);toast('Error: '+e.message,'err');}
 }
 
 // ── Google Drive setup ───────────────────────────────────
@@ -2142,7 +2554,7 @@ async function refreshSupervisors(){
   buildFilters(); renderSMTable();
 }
 
-document.addEventListener('keydown',function(e){if(e.key==='Escape'){closeDetail();closeModal();closePM();closeCM();closeCE();closeGD();closeSM();}});
+document.addEventListener('keydown',function(e){if(e.key==='Escape'){closeDetail();closeModal();closePM();closeCM();closeCE();closeGD();closeSM();closeOVM();closeOVE();closeSO();closeRCV();closeRej();}});
 setInterval(function(){if(S.role)loadData();},180000);
 
 // ── Session restore on page load ───────────────────────
