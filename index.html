@@ -376,7 +376,7 @@ tbody td{padding:9px 14px;color:#374151}
 <div id="loginScreen">
   <div class="login-card">
     <div class="login-logo">
-      <h1><span>NTE</span> Job Tracker</h1>
+      <img src="logo.png" alt="NTE Logo" style="max-width: 200px; max-height: 80px; margin-bottom: 10px; cursor: pointer;" onclick="setView('kanban')">
       <p>New Tech Engineers · Pimpri, Pune</p>
     </div>
     <div class="fg"><label>Login As</label>
@@ -402,7 +402,9 @@ tbody td{padding:9px 14px;color:#374151}
 <!-- ════ MAIN APP ════ -->
 <div id="mainApp">
   <header class="hdr">
-    <div class="hdr-logo"><span>NTE</span> Tracker</div>
+    <div class="hdr-logo" style="display:flex;align-items:center;cursor:pointer" onclick="setView('kanban')">
+      <img src="logo.png" alt="NTE Logo" style="height: 36px; margin-right: 10px;">
+    </div>
     <button id="backBtn" class="hdr-btn" onclick="setView('kanban')" style="display:none">← Back</button>
     <div class="hdr-search">
       <div class="srch-wrap">
@@ -459,6 +461,7 @@ tbody td{padding:9px 14px;color:#374151}
         <button class="vbtn" id="vTbl" onclick="setView('table')">📊 Table</button>
         <button class="vbtn" id="vPrc" onclick="setView('process')">🔍 Process</button>
         <button class="vbtn" id="vDsh" onclick="setView('dashboard')">📈 Dashboard</button>
+        <button class="vbtn" id="vOut" onclick="setView('outsource')">🔄 Outsource</button>
       </div>
     </div>
 
@@ -1217,6 +1220,7 @@ function setView(v){
   id('vTbl').className='vbtn'+(v==='table'?' active':'');
   id('vPrc').className='vbtn'+(v==='process'?' active':'');
   id('vDsh').className='vbtn'+(v==='dashboard'?' active':'');
+  if(id('vOut')) id('vOut').className='vbtn'+(v==='outsource'?' active':'');
   id('backBtn').style.display = v==='kanban' ? 'none' : 'flex';
   if(v==='kanban') renderKanban();
   else if(v==='table') renderTable();
@@ -1532,15 +1536,19 @@ function openDetail(e, jid){
       var stg=stages.find(function(s){return s.stage===p.code;});
       var isDone=stg&&stg.done, isCur=j.CURRENT_STAGE===p.code;
       var isOut=stg&&stg.outsourced&&!isDone;
-      var cls='sstep'+(isCur?' current':isDone?' done':isOut?' sstep-out':'');
-      var dotTxt=isCur?'▶':isDone?'✓':isOut?'↗':p.code.substring(0,2);
+      var cls='sstep'+(isDone?' done':(isCur?' current':isOut?' sstep-out':''));
+      var dotTxt=isDone?'✓':(isCur?'▶':isOut?'↗':p.code.substring(0,2));
       var click=(S.role!=='customer'&&!isOut)?'onclick="setStage(\''+jid+'\',\''+p.code+'\')"':'';
       var dateHtml=stg&&stg.date?'<span class="sstep-date">'+stg.date+'</span>':'';
       var rightHtml='';
       if(isOut){
         rightHtml='<span class="os-vendor-tag">⏳ '+esc(stg.vendor_name||'Outsourced')+(stg.date_sent?' · '+stg.date_sent:'')+'</span>';
-      } else if(S.role!=='customer'&&!isDone){
-        rightHtml='<button class="send-out-btn" onclick="event.stopPropagation();openSendOut(\''+jid+'\',\''+p.code+'\',\''+esc(p.name)+'\')">↗ Send Out</button>';
+      } else if(S.role!=='customer'){
+        if(isCur){
+          rightHtml='<button class="send-out-btn" style="background:#dcfce7;color:#15803d;border-color:#86efac" onclick="event.stopPropagation();finishCurrentStage(\''+jid+'\')">✓ Finish</button>';
+        } else if(!isDone){
+          rightHtml='<button class="send-out-btn" onclick="event.stopPropagation();openSendOut(\''+jid+'\',\''+p.code+'\',\''+esc(p.name)+'\')">↗ Send Out</button>';
+        }
       }
       stepperHtml+='<div class="'+cls+'" '+click+' style="position:relative">'
         +'<div class="sstep-dot">'+dotTxt+'</div>'
@@ -1704,6 +1712,22 @@ async function setStage(jid, stage){
       openDetail({stopPropagation:function(){}},jid);
     } else toast('Error: '+((res.data&&res.data.error)||'Unknown'),'err');
   } catch(e){ load(false); toast('Error: '+e.message,'err'); }
+}
+
+async function finishCurrentStage(jid) {
+  var j = S.jobs.find(function(x) { return x.JOB_ID === jid; });
+  if (!j) return;
+  load(true);
+  try {
+    var res = await db.rpc('nte_save_job', {p_token: S.token, p_data: {JOB_ID: jid, CURRENT_STAGE: ''}});
+    load(false);
+    if(res.data && res.data.success) {
+      j.CURRENT_STAGE = '';
+      toast('Stage finished ✓', 'ok');
+      filt();
+      openDetail({stopPropagation:function(){}}, jid);
+    } else toast('Error: '+((res.data&&res.data.error)||'Unknown'),'err');
+  } catch(e) { load(false); toast('Error: '+e.message,'err'); }
 }
 
 // ── Status update ──────────────────────────────────────
