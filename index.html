@@ -219,23 +219,46 @@ tbody td{padding:9px 14px;color:#374151}
 
 /* ── DETAIL PANEL ────────────────────── */
 #detailPanel{position:fixed;right:-520px;top:0;width:500px;height:100vh;
-  background:#fff;z-index:300;box-shadow:-8px 0 30px rgba(0,0,0,.15);
+  background:#f8fafc;z-index:300;box-shadow:-8px 0 32px rgba(0,0,0,.18);
   transition:right .3s ease;overflow-y:auto;display:flex;flex-direction:column}
 #detailPanel.open{right:0}
-.dp-hdr{background:#0f172a;color:#fff;padding:18px 20px;position:sticky;top:0;z-index:10}
-.dp-hdr h3{font-size:15px;font-weight:800;padding-right:40px;line-height:1.3}
-.dp-hdr p{font-size:11px;color:rgba(255,255,255,.85);margin-top:4px}
-.dp-cls{position:absolute;top:14px;right:14px;background:rgba(255,255,255,.1);border:none;
-  color:#fff;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:18px;
-  display:flex;align-items:center;justify-content:center}
-.dp-cls:hover{background:rgba(255,255,255,.2)}
-.dp-body{padding:18px;flex:1}
-.dp-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-.dp-sec{margin-bottom:4px}
-.dp-lbl{font-size:10px;font-weight:700;text-transform:uppercase;color:#4b5563;
-  letter-spacing:.05em;margin-bottom:3px}
-.dp-val{font-size:13px;color:#1e293b;font-weight:500}
-.dp-divider{border:none;border-top:1px solid #f1f5f9;margin:14px 0}
+.dp-hdr{background:linear-gradient(135deg,#0f172a 0%,#1e3a5f 100%);color:#fff;
+  padding:20px 20px 18px;position:sticky;top:0;z-index:10}
+.dp-hdr h3{font-size:16px;font-weight:900;padding-right:44px;line-height:1.3;letter-spacing:-.2px}
+.dp-hdr p{font-size:11px;color:rgba(255,255,255,.7);margin-top:5px;display:flex;align-items:center;gap:6px}
+.dp-cls{position:absolute;top:14px;right:14px;background:rgba(255,255,255,.12);border:none;
+  color:#fff;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:18px;
+  display:flex;align-items:center;justify-content:center;transition:background .2s}
+.dp-cls:hover{background:rgba(255,255,255,.25)}
+.dp-body{padding:14px;flex:1}
+.dp-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:2px}
+.dp-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:2px}
+.dp-sec{background:#fff;border-radius:10px;padding:10px 12px;
+  border:1px solid #e2e8f0;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.dp-sec-full{background:#fff;border-radius:10px;padding:10px 14px;
+  border:1px solid #e2e8f0;box-shadow:0 1px 3px rgba(0,0,0,.04);margin-bottom:8px}
+.dp-lbl{font-size:9px;font-weight:800;text-transform:uppercase;color:#94a3b8;
+  letter-spacing:.08em;margin-bottom:5px}
+.dp-val{font-size:14px;color:#0f172a;font-weight:700;line-height:1.3;word-break:break-word}
+.dp-divider{border:none;border-top:2px solid #e2e8f0;margin:14px 0}
+.dp-sh{font-size:10px;font-weight:900;color:#fff;text-transform:uppercase;letter-spacing:.09em;
+  padding:5px 10px 5px 12px;border-radius:7px;margin:12px 0 8px;display:inline-flex;align-items:center;gap:6px}
+.dp-sh-blue{background:#3b82f6}.dp-sh-violet{background:#7c3aed}
+.dp-sh-orange{background:#f97316}.dp-sh-teal{background:#0d9488}
+.dp-sh-rose{background:#e11d48}.dp-sh-slate{background:#475569}
+.dp-chip{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:20px;
+  font-size:11px;font-weight:800;letter-spacing:.02em}
+.dp-chip-blue{background:#dbeafe;color:#1d4ed8;border:1px solid #bfdbfe}
+.dp-chip-gray{background:#f1f5f9;color:#475569;border:1px solid #e2e8f0}
+.dp-chip-red{background:#fee2e2;color:#dc2626;border:1px solid #fca5a5}
+.dp-chip-orange{background:#fff7ed;color:#c2410c;border:1px solid #fed7aa}
+.dp-chip-green{background:#dcfce7;color:#15803d;border:1px solid #86efac}
+.dp-chip-cyan{background:#cffafe;color:#0e7490;border:1px solid #a5f3fc}
+.dp-chip-violet{background:#ede9fe;color:#6d28d9;border:1px solid #c4b5fd}
+.dp-hero{background:linear-gradient(135deg,#eff6ff 0%,#f0fdf4 100%);
+  border:1.5px solid #bfdbfe;border-radius:12px;padding:14px 16px;margin-bottom:10px}
+.dp-hero-company{font-size:17px;font-weight:900;color:#1e40af;margin-bottom:8px;line-height:1.2}
+.dp-hero-tags{display:flex;flex-wrap:wrap;gap:6px}
 
 /* ── DRAWING SECTION (detail panel) ─────── */
 .drw-card{background:#f5f3ff;border:1.5px solid #c4b5fd;border-radius:10px;padding:13px;margin-top:6px}
@@ -642,10 +665,6 @@ tbody td{padding:9px 14px;color:#374151}
     </div>
     <div id="lErr" class="err-msg">❌ Invalid credentials. Please try again.</div>
     <button class="btn btn-primary btn-full" style="margin-top:14px" onclick="login()">Sign In →</button>
-    <hr class="login-divider">
-    <p style="font-size:10px;color:#4b5563;text-align:center;line-height:1.7">
-      Admin: <b>NTE@2026</b> · Supervisor: <b>floor@123</b> · Customer: <b>view@123</b>
-    </p>
   </div>
 </div>
 
@@ -989,14 +1008,14 @@ tbody td{padding:9px 14px;color:#374151}
       <div class="fg" style="margin-top:4px"><label>Notes / Remarks</label>
         <textarea id="fmNotes"></textarea></div>
       <div class="sec-ttl">Drawing / Document</div>
-      <div id="njDrwZone" class="drw-zone" onclick="id('njFileInput').click()"
+      <label id="njDrwZone" class="drw-zone" for="njFileInput"
            ondragover="event.preventDefault();this.classList.add('drag')"
            ondragleave="this.classList.remove('drag')"
            ondrop="njDropFile(event)">
         <div class="dz-icon">📎</div>
         <p>Click or drag &amp; drop a drawing / PDF here</p>
         <p style="font-size:10px;color:#9ca3af;margin-top:4px">PDF, PNG, JPG up to 20MB</p>
-      </div>
+      </label>
       <div id="njDrwPreview" style="display:none" class="drw-existing">
         <span id="njDrwIcon" style="font-size:20px">📄</span>
         <span class="drw-existing-name" id="njDrwName"></span>
@@ -1852,7 +1871,8 @@ function openDetail(e, jid){
   if(!j) return;
   S.curJob=jid;
   id('dpTitle').textContent=j.DESCRIPTION||'Job Details';
-  id('dpSub').textContent=(j.COMPANY||'')+' · '+(j.JOB_ID||'');
+  id('dpSub').innerHTML='<span style="opacity:.75">'+(j.JOB_ID||'')+'</span>'
+    +(j.JOB_CARD_NO?'<span style="opacity:.5"> · JC: '+esc(j.JOB_CARD_NO)+'</span>':'');
 
   var stages=[]; try{ stages=JSON.parse(j.STAGES_JSON||'[]'); }catch(er){}
 
@@ -1914,7 +1934,7 @@ function openDetail(e, jid){
 
   // Drawing section
 
-  var drwHtml='<div class="dp-lbl" style="margin-top:14px">Drawing / Document</div>';
+  var drwHtml='<div class="dp-sh dp-sh-violet">📐 Drawing / Document</div>';
   if(j.DRAWING_URL){
     var isDrive=j.DRAWING_URL.indexOf('drive.google.com')!==-1;
     var isPdf=isDrive||/\.pdf$/i.test(j.DRAWING_URL);
@@ -1952,7 +1972,7 @@ function openDetail(e, jid){
   var stBtns='';
   if(S.role!=='customer'){
     var map={'RECEIVED':'rcv','IN PROGRESS':'wip','QC':'qc','READY':'rdy','DISPATCHED':'dsp'};
-    stBtns='<div class="dp-lbl" style="margin-top:14px">Update Overall Status</div>'
+    stBtns='<div class="dp-sh dp-sh-slate" style="margin-top:4px">🔄 Update Status</div>'
       +'<div class="status-btns">'
       +STATUS_ORDER.map(function(st){
         var k=map[st], on=j.STATUS===st?' on':'';
@@ -1960,35 +1980,69 @@ function openDetail(e, jid){
       }).join('')+'</div>';
   }
 
-  var dispHtml=j.CHALLAN_NO
-    ?'<div class="dp-lbl" style="margin-top:14px">Dispatch Info</div>'
-     +'<div class="dp-grid">'+drow('Challan No',j.CHALLAN_NO)+drow('Challan Date',j.CHALLAN_DATE||'-')+drow('Bill No',j.BILL_NO||'-')+'</div>':'';
+  var dispHtml='';
+  if(j.CHALLAN_NO){
+    dispHtml='<div class="dp-sh dp-sh-cyan">🚚 Dispatch Info</div>'
+      +'<div class="dp-grid-3">'+drow('Challan No',j.CHALLAN_NO)+drow('Challan Date',j.CHALLAN_DATE||'-')+drow('Bill No',j.BILL_NO||'-')+'</div>';
+  }
 
+  // Priority chip
+  var priColor=j.PRIORITY==='HIGH'?'dp-chip-red':j.PRIORITY==='LOW'?'dp-chip-green':'dp-chip-orange';
+  var priIcon=j.PRIORITY==='HIGH'?'🔴':j.PRIORITY==='LOW'?'🟢':'🟡';
+  var priChip='<span class="dp-chip '+priColor+'">'+priIcon+' '+(j.PRIORITY||'NORMAL')+'</span>';
+
+  // Job type chip
+  var jtChip=j.JOB_TYPE==='WITH MATERIAL'
+    ?'<span class="dp-chip dp-chip-blue">📦 With Material</span>'
+    :'<span class="dp-chip dp-chip-gray">🔧 Labour Only</span>';
+
+  // Status chip
+  var stMap={'RECEIVED':'dp-chip-gray','IN PROGRESS':'dp-chip-blue','QC':'dp-chip-orange','READY':'dp-chip-green','DISPATCHED':'dp-chip-cyan'};
+  var stChip='<span class="dp-chip '+(stMap[j.STATUS]||'dp-chip-gray')+'">● '+(j.STATUS||'RECEIVED')+'</span>';
+
+  // Overdue banner
   var overdueHtml=j.IS_OVERDUE
-    ?'<div style="background:#fef2f2;color:#dc2626;padding:9px 13px;border-radius:7px;font-size:12px;font-weight:700;margin-top:12px">⚠️ Overdue by '+(j.DAYS_OVERDUE||0)+' day(s)</div>':'';
+    ?'<div style="background:#fef2f2;color:#dc2626;padding:9px 13px;border-radius:8px;font-size:12px;font-weight:800;margin-top:8px;display:flex;align-items:center;gap:8px"><span style="font-size:16px">⚠️</span> Overdue by '+(j.DAYS_OVERDUE||0)+' day(s)</div>':'';
 
-  var body='<div class="dp-grid">'
-    +drow('Company',j.COMPANY)+drow('Job Type',j.JOB_TYPE==='WITH MATERIAL'?'📦 With Material':'🔧 Labour Only')
-    +drow('PO Number',j.PO_NO||'-')+drow('Job Card',j.JOB_CARD_NO||'-')
-    +drow('Drawing No',j.DRG_NO||'-')+drow('Quantity',j.QUANTITY||'-')
-    +drow('Supervisor',j.SUPERVISOR||'Unassigned')+drow('Priority',j.PRIORITY||'NORMAL')
-    +drow('Received',j.RECEIVED_DATE?fmtDate(j.RECEIVED_DATE):'-')
-    +drow('DOD',j.DOD?fmtDate(j.DOD):'-',j.IS_OVERDUE?'color:#ef4444;font-weight:800':'')
+  // Hero block: company + tags
+  var body='<div class="dp-hero">'
+    +'<div class="dp-hero-company">🏭 '+esc(j.COMPANY||'—')+'</div>'
+    +'<div class="dp-hero-tags">'+jtChip+priChip+stChip+'</div>'
+    +'</div>';
+
+  // Order reference
+  body+='<div class="dp-sh dp-sh-blue">📋 Order Reference</div>'
+    +'<div class="dp-grid">'
+    +drow('PO Number',j.PO_NO||'—')+drow('Job Card No',j.JOB_CARD_NO||'—')
+    +drow('Drawing No',j.DRG_NO||'—')+drow('Quantity',j.QUANTITY||'—')
+    +'</div>';
+
+  // Schedule
+  body+='<div class="dp-sh dp-sh-teal" style="margin-top:10px">📅 Schedule</div>'
+    +'<div class="dp-grid">'
+    +drow('Received',j.RECEIVED_DATE?fmtDate(j.RECEIVED_DATE):'—')
+    +drow('Delivery (DOD)',j.DOD?fmtDate(j.DOD):'—',j.IS_OVERDUE?'color:#ef4444;font-weight:800':'')
     +'</div>'+overdueHtml;
 
+  // Supervisor
+  body+='<div style="margin-top:8px">'
+    +drow1('Assigned Supervisor',j.SUPERVISOR||'Unassigned','color:'+(j.SUPERVISOR?'#0f172a':'#94a3b8'))
+    +'</div>';
+
   body+='<hr class="dp-divider">';
-  body+='<div class="dp-lbl">Process Stage Tracking</div>'+stepperHtml;
+  body+='<div class="dp-sh dp-sh-violet">⚙️ Process Stages</div>'+stepperHtml;
   body+='<hr class="dp-divider">'+drwHtml;
+
   // Rejection section
-  var rejHtml='<div class="dp-lbl" style="margin-top:14px">Rejection</div>';
+  var rejHtml='<div class="dp-sh dp-sh-rose">⚠️ Rejection</div>';
   if(j.REJECTED_QTY>0){
-    rejHtml+='<div style="background:#fef2f2;border:1.5px solid #fca5a5;border-radius:8px;padding:10px 14px;display:flex;align-items:center;gap:10px;margin-top:6px">'
-      +'<span style="font-size:20px">⚠️</span>'
-      +'<div style="flex:1"><div style="font-size:13px;font-weight:800;color:#dc2626">'+j.REJECTED_QTY+' piece(s) rejected</div></div>'
+    rejHtml+='<div style="background:#fef2f2;border:1.5px solid #fca5a5;border-radius:10px;padding:12px 14px;display:flex;align-items:center;gap:10px">'
+      +'<span style="font-size:22px">⚠️</span>'
+      +'<div style="flex:1"><div style="font-size:15px;font-weight:900;color:#dc2626">'+j.REJECTED_QTY+' piece(s) rejected</div></div>'
       +(S.role!=='customer'?'<button class="drw-btn drw-change-btn" onclick="openReject(\''+jid+'\')">Update</button>':'')
       +'</div>';
   } else if(S.role!=='customer'){
-    rejHtml+='<div class="no-drawing" style="margin-top:6px">'
+    rejHtml+='<div class="no-drawing">'
       +'<p>No rejections recorded</p>'
       +'<button class="btn btn-sm btn-ghost" onclick="openReject(\''+jid+'\')">⚠️ Mark Rejection</button>'
       +'</div>';
@@ -1996,12 +2050,14 @@ function openDetail(e, jid){
   body+='<hr class="dp-divider">'+rejHtml;
   body+='<hr class="dp-divider">'+stBtns+dispHtml;
 
-  if(j.NOTES) body+='<div class="dp-lbl" style="margin-top:14px">Notes</div>'
-    +'<p style="font-size:12px;color:#374151;line-height:1.5">'+esc(j.NOTES)+'</p>';
+  if(j.NOTES){
+    body+='<div class="dp-sh dp-sh-orange" style="margin-top:10px">📝 Notes</div>'
+      +'<div class="dp-sec-full" style="color:#374151;font-size:13px;line-height:1.7">'+esc(j.NOTES)+'</div>';
+  }
 
   if(S.role!=='customer'){
-    body+='<div style="margin-top:18px;padding-top:14px;border-top:1px solid #f1f5f9">'
-      +'<button class="btn btn-secondary" style="width:100%" onclick="openModal(event,\''+jid+'\')">✏️ Edit Full Job</button>'
+    body+='<div style="margin-top:18px;padding-top:14px;border-top:2px solid #e2e8f0">'
+      +'<button class="btn btn-secondary" style="width:100%;font-weight:800" onclick="openModal(event,\''+jid+'\')">✏️ Edit Full Job</button>'
       +'</div>';
   }
 
@@ -2013,6 +2069,10 @@ function openDetail(e, jid){
 
 function drow(lbl,val,sty){
   return '<div class="dp-sec"><div class="dp-lbl">'+lbl+'</div>'
+    +'<div class="dp-val" style="'+(sty||'')+'">'+esc(String(val||'-'))+'</div></div>';
+}
+function drow1(lbl,val,sty){
+  return '<div class="dp-sec-full"><div class="dp-lbl">'+lbl+'</div>'
     +'<div class="dp-val" style="'+(sty||'')+'">'+esc(String(val||'-'))+'</div></div>';
 }
 
