@@ -2,8 +2,15 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>NTE Job Tracker</title>
+<meta name="theme-color" content="#0f172a">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="NTE Jobs">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="logo.png">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -151,7 +158,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
 
 /* ── TABLE ─────────────────────────── */
 #tableView{display:none}
-.tbl-wrap{background:#fff;border-radius:var(--r);overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+.tbl-wrap{background:#fff;border-radius:var(--r);overflow-x:auto;-webkit-overflow-scrolling:touch;box-shadow:0 1px 3px rgba(0,0,0,.05)}
 table{width:100%;border-collapse:collapse;font-size:12px}
 thead th{background:#0f172a;color:#fff;padding:11px 14px;text-align:left;
   font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;white-space:nowrap}
@@ -362,10 +369,253 @@ tbody td{padding:9px 14px;color:#374151}
   transform:translateY(120px);opacity:0;transition:all .3s;display:flex;align-items:center;gap:7px;max-width:360px}
 #toast.show{transform:translateY(0);opacity:1}
 #toast.ok{background:#16a34a}#toast.err{background:#dc2626}
-@media(max-width:1300px){.stats-row{grid-template-columns:repeat(3,1fr)}}
-@media(max-width:1000px){#kanbanView{grid-template-columns:repeat(2,1fr)}.stats-row{grid-template-columns:repeat(3,1fr)}}
-@media(max-width:700px){#kanbanView{grid-template-columns:1fr}.stats-row{grid-template-columns:repeat(2,1fr)}
-  .row2,.row3{grid-template-columns:1fr}#detailPanel{width:100%;right:-100%}.stage-grid{grid-template-columns:repeat(3,1fr)}}
+/* ── MOBILE BOTTOM NAV ──────────────────────────────────── */
+.mob-nav{display:none;position:fixed;bottom:0;left:0;right:0;
+  background:#fff;border-top:1px solid #e2e8f0;z-index:250;
+  padding-bottom:env(safe-area-inset-bottom,0);
+  box-shadow:0 -2px 14px rgba(0,0,0,.09)}
+.mob-nav-inner{display:flex;height:60px}
+.mn-item{flex:1;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:3px;border:none;background:transparent;
+  cursor:pointer;color:#94a3b8;-webkit-tap-highlight-color:transparent;
+  transition:color .15s;padding:6px 2px;font-family:inherit}
+.mn-item .mn-icon{font-size:19px;line-height:1;transition:transform .15s}
+.mn-item .mn-lbl{font-size:9px;font-weight:700;letter-spacing:.03em;text-transform:uppercase}
+.mn-item.active{color:#f97316}
+.mn-item.active .mn-icon{transform:scale(1.12)}
+
+/* ── FAB ────────────────────────────────────────────────── */
+.fab{display:none;position:fixed;bottom:78px;right:16px;
+  width:56px;height:56px;border-radius:50%;background:#f97316;
+  color:#fff;font-size:26px;font-weight:300;border:none;cursor:pointer;
+  z-index:240;box-shadow:0 4px 18px rgba(249,115,22,.55);
+  align-items:center;justify-content:center;line-height:1;
+  -webkit-tap-highlight-color:transparent;transition:transform .12s,box-shadow .12s}
+.fab:active{transform:scale(.9);box-shadow:0 2px 8px rgba(249,115,22,.4)}
+
+/* ── HEADER HAMBURGER ───────────────────────────────────── */
+.hdr-hamburger{background:rgba(255,255,255,.08);color:#fff;
+  width:36px;height:36px;border-radius:8px;border:1px solid rgba(255,255,255,.18);
+  cursor:pointer;display:none;align-items:center;justify-content:center;
+  font-size:20px;flex-shrink:0;-webkit-tap-highlight-color:transparent}
+.hdr-hamburger:hover{background:rgba(255,255,255,.18)}
+
+/* ── ADMIN DRAWER ────────────────────────────────────────── */
+#adminDrawer{display:none;position:fixed;inset:0;z-index:1500}
+#adminDrawer.on{display:block}
+.adw-bg{position:absolute;inset:0;background:rgba(0,0,0,.5)}
+.adw-panel{position:absolute;top:0;right:0;width:270px;height:100%;
+  background:#fff;box-shadow:-4px 0 28px rgba(0,0,0,.18);
+  display:flex;flex-direction:column;transform:translateX(100%);
+  transition:transform .25s ease;overflow-y:auto}
+#adminDrawer.on .adw-panel{transform:translateX(0)}
+.adw-hdr{background:#0f172a;color:#fff;padding:20px 16px 16px;
+  padding-top:calc(20px + env(safe-area-inset-top,0));
+  display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.adw-hdr h4{font-size:15px;font-weight:900;letter-spacing:-.3px}
+.adw-hdr h4 span{color:#f97316}
+.adw-cls{background:none;border:none;color:#fff;font-size:26px;
+  cursor:pointer;line-height:1;padding:2px 6px;border-radius:4px;
+  -webkit-tap-highlight-color:transparent}
+.adw-cls:hover{background:rgba(255,255,255,.15)}
+.adw-user{padding:12px 16px;display:flex;align-items:center;gap:10px;
+  border-bottom:1px solid #f1f5f9;flex-shrink:0}
+.adw-role-tag{background:rgba(249,115,22,.1);color:#f97316;
+  padding:4px 12px;border-radius:12px;font-size:11px;font-weight:800;
+  border:1px solid rgba(249,115,22,.25);text-transform:uppercase}
+.adw-section{border-bottom:1px solid #f1f5f9;padding:6px 0}
+.adw-item{display:flex;align-items:center;gap:14px;padding:15px 18px;
+  cursor:pointer;font-size:14px;font-weight:600;color:#1e293b;
+  -webkit-tap-highlight-color:transparent;min-height:52px;transition:background .12s}
+.adw-item:active{background:#f1f5f9}
+.adw-item .adw-ic{font-size:18px;width:26px;text-align:center;flex-shrink:0}
+.adw-logout{color:#dc2626}
+
+/* ── DETAIL PANEL OVERLAY ───────────────────────────────── */
+#dpOverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:299;
+  -webkit-tap-highlight-color:transparent}
+#dpOverlay.on{display:block}
+
+/* ── RESPONSIVE ────────────────────────────────────────── */
+@media(max-width:1300px){
+  .stats-row{grid-template-columns:repeat(3,1fr)}
+}
+@media(max-width:900px){
+  #kanbanView{grid-template-columns:repeat(2,1fr)}
+  .hdr-btn{padding:5px 9px;font-size:11px}
+  .dsh-row-2{grid-template-columns:1fr !important}
+}
+
+/* ── MOBILE (≤640px) ─────────────────────────────────── */
+@media(max-width:640px){
+  /* Login */
+  .login-card{padding:28px 20px;border-radius:14px}
+  .login-logo img{max-width:140px}
+
+  /* Header — 2-row layout */
+  .hdr{height:auto;flex-wrap:wrap;padding:10px 12px;row-gap:8px}
+  .hdr-logo{order:1;margin-right:0;flex-shrink:0}
+  #backBtn{order:2;padding:5px 8px;font-size:10px;flex-shrink:0}
+  .hdr-search{order:4;flex:0 0 100%;max-width:100%;margin:0}
+  .hdr-right{order:3;margin-left:auto;display:flex;gap:4px;flex-wrap:nowrap;
+    overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:calc(100% - 110px);padding-bottom:2px}
+  .hdr-btn{padding:5px 7px;font-size:10px;white-space:nowrap;flex-shrink:0}
+  .role-badge{display:none}
+  .logout-btn{padding:5px 9px;font-size:10px;flex-shrink:0;white-space:nowrap}
+
+  /* Content */
+  .content{padding:10px 12px}
+
+  /* Stats */
+  .stats-row{grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:10px}
+  .sc{padding:10px 10px}
+  .sc .val{font-size:20px}
+  .sc .sub{display:none}
+
+  /* Control bar */
+  .ctrl-bar{padding:8px 10px;gap:6px;flex-wrap:wrap}
+  .ctrl-bar select{font-size:11px;padding:5px 7px;flex:1;min-width:110px}
+  .cb-label{font-size:11px}
+  .add-btn{font-size:11px;padding:6px 10px}
+  .view-toggle{margin-left:0;width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;
+    justify-content:flex-start;flex-shrink:0;padding-bottom:2px}
+  .vbtn{padding:6px 10px;font-size:11px;white-space:nowrap;flex-shrink:0}
+
+  /* Kanban */
+  #kanbanView{grid-template-columns:1fr}
+  .jcard{padding:10px}
+  .cdesc{font-size:13px}
+
+  /* Detail panel — full width slide in */
+  #detailPanel{width:100%;right:-100%}
+  #detailPanel.open{right:0}
+  .dp-body{padding:14px}
+  .dp-grid{grid-template-columns:1fr 1fr;gap:10px}
+
+  /* Modals — bottom sheet */
+  .ov{padding:0;align-items:flex-end}
+  .modal{border-radius:16px 16px 0 0;max-height:92vh;overflow-y:auto;max-width:100%;width:100%}
+  .mhdr{padding:14px 16px;border-radius:16px 16px 0 0}
+  .mhdr h2{font-size:15px}
+  .mbody{padding:14px 16px}
+  .mftr{padding:10px 16px;gap:8px}
+  .row2,.row3{grid-template-columns:1fr}
+  .stage-grid{grid-template-columns:repeat(3,1fr)}
+
+  /* Outsource page */
+  .os-hdr{flex-wrap:wrap;gap:8px}
+  .os-hdr h3{width:100%;margin-right:0}
+
+  /* Stage stepper — tighten for narrow screens */
+  .sstep{padding:8px 10px;gap:8px}
+  .sstep-dot{width:26px;height:26px;font-size:10px;flex-shrink:0}
+  .send-out-btn{font-size:9px;padding:3px 6px}
+
+  /* Toast — full-width at bottom */
+  #toast{bottom:12px;left:12px;right:12px;max-width:none;font-size:12px}
+
+  /* Process view filter bar */
+  #ptCtrlBar{padding:8px 10px}
+  #ptCtrlBar select{font-size:11px;padding:5px 7px;flex:1;min-width:100px}
+
+  /* Alerts bar */
+  #alertsBar{padding:8px 12px;font-size:12px;flex-wrap:wrap}
+
+  /* Dashboard: stack rows to single column */
+  .dsh-row-2{grid-template-columns:1fr !important}
+
+  /* Touch targets: 44px minimum for tappable elements */
+  .btn{min-height:44px}
+  .hdr-btn,.logout-btn{min-height:38px}
+  .add-btn,.vbtn{min-height:38px}
+  .stbtn{min-height:44px}
+
+  /* Table: improve touch scroll */
+  .tbl-wrap{overscroll-behavior-x:contain}
+
+  /* Control bar: add-btn takes its own line */
+  .add-btn{align-self:center}
+
+  /* Process view: card layout on mobile */
+  #processView table{display:block}
+  #processView thead{display:none}
+  #processView tbody{display:block}
+  #processView tbody tr{display:block;border:1.5px solid #e2e8f0;border-radius:10px;
+    margin-bottom:10px;padding:10px 12px;background:#fff;cursor:pointer}
+  #processView tbody tr:hover{background:#fafafa}
+  #processView tbody td{display:flex;align-items:flex-start;gap:8px;
+    padding:5px 0;border:none;font-size:12px;line-height:1.4}
+  #processView tbody td::before{content:attr(data-label);
+    font-size:9px;font-weight:800;color:#64748b;text-transform:uppercase;
+    letter-spacing:.04em;min-width:76px;flex-shrink:0;padding-top:2px}
+  #processView tbody td:nth-child(4){display:none}
+
+  /* Outsource view: card layout on mobile */
+  #outsourceView table{display:block}
+  #outsourceView thead{display:none}
+  #outsourceView tbody{display:block}
+  #outsourceView tbody tr{display:block;border:1.5px solid #e2e8f0;border-radius:10px;
+    margin-bottom:10px;padding:10px 12px;background:#fff;cursor:pointer}
+  #outsourceView tbody td{display:flex;align-items:flex-start;gap:8px;
+    padding:5px 0;border:none;font-size:12px;line-height:1.4}
+  #outsourceView tbody td::before{content:attr(data-label);
+    font-size:9px;font-weight:800;color:#64748b;text-transform:uppercase;
+    letter-spacing:.04em;min-width:76px;flex-shrink:0;padding-top:2px}
+  #outsourceView tbody td:nth-child(4){display:none}
+
+  /* Table view: card layout on mobile */
+  #tableView table{display:block}
+  #tableView thead{display:none}
+  #tableView tbody{display:block}
+  #tableView tbody tr{display:block;border:1.5px solid #e2e8f0;border-radius:10px;
+    margin-bottom:10px;padding:10px 12px;background:#fff;cursor:pointer}
+  #tableView tbody tr.row-vu{background:#fff8f8}
+  #tableView tbody tr.row-over{background:#fef2f2}
+  #tableView tbody tr:hover{background:#fafafa}
+  #tableView tbody td{display:flex;align-items:flex-start;gap:8px;
+    padding:5px 0;border:none;font-size:12px;line-height:1.4}
+  #tableView tbody td::before{content:attr(data-label);
+    font-size:9px;font-weight:800;color:#64748b;text-transform:uppercase;
+    letter-spacing:.04em;min-width:76px;flex-shrink:0;padding-top:2px}
+  #tableView tbody td:nth-child(5),
+  #tableView tbody td:nth-child(9){display:none}
+
+  /* ── Mobile PWA UI ──────────────────────────────────── */
+  /* Show bottom nav & FAB */
+  .mob-nav.show{display:block}
+  .fab.show{display:flex}
+  .hdr-hamburger.show{display:flex}
+
+  /* Bottom nav clearance for content */
+  .content{padding-bottom:80px !important}
+
+  /* Hide desktop header controls → moved to admin drawer */
+  .hdr-right{display:none !important}
+
+  /* Hide desktop view toggle → replaced by bottom nav */
+  .view-toggle{display:none !important}
+
+  /* Hide desktop add-job button → replaced by FAB */
+  #addBtn{display:none !important}
+
+  /* Hide Back button → bottom nav handles navigation */
+  #backBtn{display:none !important}
+
+  /* Process filter count: push left */
+  #ptCount{margin-left:0;font-size:11px}
+
+  /* Login card bottom safe area */
+  .login-card{margin-bottom:env(safe-area-inset-bottom,0)}
+}
+
+/* ── VERY SMALL (≤400px) ─────────────────────────────── */
+@media(max-width:400px){
+  .stats-row{grid-template-columns:repeat(2,1fr)}
+  .sc .val{font-size:18px}
+  .hdr-btn{font-size:9px;padding:4px 6px}
+  .vbtn{font-size:10px;padding:5px 8px}
+  .stage-grid{grid-template-columns:repeat(2,1fr)}
+}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
@@ -421,6 +671,7 @@ tbody td{padding:9px 14px;color:#374151}
       <button class="hdr-btn" id="osBtn" onclick="setView('outsource')" style="display:none">🔄 Outsource</button>
       <span id="hRole" class="role-badge">Admin</span>
       <button class="logout-btn" onclick="logout()">Logout</button>
+      <button class="hdr-hamburger" id="hdrHamburger" onclick="openAdminDrawer()">☰</button>
     </div>
   </header>
 
@@ -503,7 +754,7 @@ tbody td{padding:9px 14px;color:#374151}
     <div id="dashboardView" style="display:none">
 
       <!-- Row 1: Upcoming DODs + Recent Dispatches -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
+      <div class="dsh-row-2" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
 
         <!-- Upcoming DODs -->
         <div style="background:#fff;border-radius:10px;padding:18px;box-shadow:0 1px 3px rgba(0,0,0,.06)">
@@ -521,7 +772,7 @@ tbody td{padding:9px 14px;color:#374151}
       </div>
 
       <!-- Row 2: Charts -->
-      <div style="display:grid;grid-template-columns:2fr 1fr;gap:14px;margin-bottom:14px">
+      <div class="dsh-row-2" style="display:grid;grid-template-columns:2fr 1fr;gap:14px;margin-bottom:14px">
 
         <!-- Jobs by Company bar chart -->
         <div style="background:#fff;border-radius:10px;padding:18px;box-shadow:0 1px 3px rgba(0,0,0,.06)">
@@ -586,7 +837,75 @@ tbody td{padding:9px 14px;color:#374151}
       </div>
     </div>
   </div>
+
+  <!-- ════ BOTTOM NAV (mobile) ════ -->
+  <nav class="mob-nav" id="mobNav">
+    <div class="mob-nav-inner">
+      <button class="mn-item active" id="mn-kan" onclick="setView('kanban')">
+        <span class="mn-icon">📋</span><span class="mn-lbl">Jobs</span>
+      </button>
+      <button class="mn-item" id="mn-prc" onclick="setView('process')">
+        <span class="mn-icon">🔍</span><span class="mn-lbl">Process</span>
+      </button>
+      <button class="mn-item" id="mn-dsh" onclick="setView('dashboard')">
+        <span class="mn-icon">📈</span><span class="mn-lbl">Dashboard</span>
+      </button>
+      <button class="mn-item" id="mn-out" onclick="setView('outsource')">
+        <span class="mn-icon">🔄</span><span class="mn-lbl">Outsource</span>
+      </button>
+      <button class="mn-item" id="mn-tbl" onclick="setView('table')">
+        <span class="mn-icon">📊</span><span class="mn-lbl">Table</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ════ FAB (mobile new job) ════ -->
+  <button class="fab" id="fabBtn" onclick="openModal(null)">+</button>
+
+  <!-- ════ ADMIN DRAWER (mobile) ════ -->
+  <div id="adminDrawer">
+    <div class="adw-bg" onclick="closeAdminDrawer()"></div>
+    <div class="adw-panel">
+      <div class="adw-hdr">
+        <h4>NTE <span>Jobs</span></h4>
+        <button class="adw-cls" onclick="closeAdminDrawer()">×</button>
+      </div>
+      <div class="adw-user">
+        <span class="adw-role-tag" id="adwRole">ADMIN</span>
+      </div>
+      <div class="adw-section">
+        <div class="adw-item" onclick="loadData();closeAdminDrawer()">
+          <span class="adw-ic">↻</span> Refresh Data
+        </div>
+      </div>
+      <div class="adw-section" id="adwAdminSection" style="display:none">
+        <div class="adw-item" onclick="openCM();closeAdminDrawer()">
+          <span class="adw-ic">🏭</span> Customers
+        </div>
+        <div class="adw-item" onclick="openSM();closeAdminDrawer()">
+          <span class="adw-ic">👤</span> Supervisors
+        </div>
+        <div class="adw-item" onclick="openPM();closeAdminDrawer()">
+          <span class="adw-ic">⚙️</span> Processes
+        </div>
+        <div class="adw-item" onclick="openGD();closeAdminDrawer()">
+          <span class="adw-ic">🗂️</span> Drive Setup
+        </div>
+        <div class="adw-item" onclick="setView('outsource');closeAdminDrawer()">
+          <span class="adw-ic">🔄</span> Outsource / Vendors
+        </div>
+      </div>
+      <div class="adw-section">
+        <div class="adw-item adw-logout" onclick="logout()">
+          <span class="adw-ic">🚪</span> Logout
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
+
+<!-- ════ DETAIL PANEL OVERLAY ════ -->
+<div id="dpOverlay" onclick="closeDetail()"></div>
 
 <!-- ════ DETAIL PANEL ════ -->
 <div id="detailPanel">
@@ -983,6 +1302,12 @@ function afterLogin(role){
   if(role!=='customer') id('addBtn').style.display='flex';
   if(role!=='customer') id('osBtn').style.display='flex';
   if(role==='admin'){ id('pmBtn').style.display='flex'; id('cmBtn').style.display='flex'; id('smBtn').style.display='flex'; id('gdBtn').style.display='flex'; id('osVmBtn').style.display='flex'; }
+  // Mobile PWA elements
+  id('mobNav').classList.add('show');
+  id('hdrHamburger').classList.add('show');
+  if(role!=='customer') id('fabBtn').classList.add('show');
+  id('adwRole').textContent=role.toUpperCase();
+  if(role==='admin') id('adwAdminSection').style.display='';
   loadData();
 }
 
@@ -990,6 +1315,12 @@ function logout(){
   sessionStorage.removeItem('nte_token');
   sessionStorage.removeItem('nte_role');
   S.token=null; S.role=null;
+  closeAdminDrawer();
+  id('mobNav').classList.remove('show');
+  id('hdrHamburger').classList.remove('show');
+  id('fabBtn').classList.remove('show');
+  id('adwAdminSection').style.display='none';
+  document.body.style.overflow='';
   id('mainApp').style.display='none';
   id('loginScreen').style.display='flex';
   id('lPass').value=''; id('lErr').style.display='none';
@@ -1186,18 +1517,18 @@ function renderTable(){
     var eb=S.role!=='customer'?'<button class="btn btn-sm btn-ghost" onclick="openModal(event,\''+j.JOB_ID+'\');event.stopPropagation()">Edit</button>':'';
     var drwCell=j.DRAWING_URL?'<a href="'+j.DRAWING_URL+'" target="_blank" onclick="event.stopPropagation()" style="color:#7c3aed;font-size:16px" title="'+esc(j.DRAWING_NAME||'Drawing')+'">📄</a>':'<span style="color:#e2e8f0">—</span>';
     return '<tr class="'+rc+'" onclick="openDetail(event,\''+j.JOB_ID+'\')">'
-      +'<td><small style="color:#4b5563;font-size:10px">'+esc(j.JOB_ID||'')+'</small></td>'
-      +'<td><strong>'+esc(j.COMPANY||'')+'</strong></td>'
-      +'<td>'+esc(j.DESCRIPTION||'')+'</td>'
-      +'<td>'+(j.QUANTITY||'-')+'</td>'
-      +'<td>'+(j.JOB_TYPE==='WITH MATERIAL'?'📦':'🔧')+'</td>'
-      +'<td>'+(j.SUPERVISOR||'-')+'</td>'
-      +'<td style="'+(j.IS_OVERDUE?'color:#ef4444;font-weight:700':'')+'">'+dodT+'</td>'
-      +'<td>'+(miniStageBar(j)||'<span style="color:#4b5563;font-size:10px">—</span>')+'</td>'
-      +'<td>'+drwCell+'</td>'
-      +'<td>'+priBadge(j.PRIORITY)+'</td>'
-      +'<td><span class="stt stt-'+sid+'">'+(j.STATUS||'RECEIVED')+'</span></td>'
-      +'<td>'+eb+'</td>'
+      +'<td data-label="Job ID"><small style="color:#4b5563;font-size:10px">'+esc(j.JOB_ID||'')+'</small></td>'
+      +'<td data-label="Company"><strong>'+esc(j.COMPANY||'')+'</strong></td>'
+      +'<td data-label="Description">'+esc(j.DESCRIPTION||'')+'</td>'
+      +'<td data-label="Qty">'+(j.QUANTITY||'-')+'</td>'
+      +'<td data-label="Type">'+(j.JOB_TYPE==='WITH MATERIAL'?'📦 Material':'🔧 Labour')+'</td>'
+      +'<td data-label="Supervisor">'+(j.SUPERVISOR||'-')+'</td>'
+      +'<td data-label="DOD" style="'+(j.IS_OVERDUE?'color:#ef4444;font-weight:700':'')+'">'+dodT+'</td>'
+      +'<td data-label="Stages">'+(miniStageBar(j)||'<span style="color:#4b5563;font-size:10px">—</span>')+'</td>'
+      +'<td data-label="Drw">'+drwCell+'</td>'
+      +'<td data-label="Priority">'+priBadge(j.PRIORITY)+'</td>'
+      +'<td data-label="Status"><span class="stt stt-'+sid+'">'+(j.STATUS||'RECEIVED')+'</span></td>'
+      +'<td data-label="">'+eb+'</td>'
       +'</tr>';
   }).join('');
 }
@@ -1222,6 +1553,9 @@ function setView(v){
   id('vDsh').className='vbtn'+(v==='dashboard'?' active':'');
   if(id('vOut')) id('vOut').className='vbtn'+(v==='outsource'?' active':'');
   id('backBtn').style.display = v==='kanban' ? 'none' : 'flex';
+  // Sync bottom nav
+  var _mnMap={kanban:'mn-kan',table:'mn-tbl',process:'mn-prc',dashboard:'mn-dsh',outsource:'mn-out'};
+  Object.keys(_mnMap).forEach(function(k){var el=id(_mnMap[k]);if(el)el.className='mn-item'+(v===k?' active':'');});
   if(v==='kanban') renderKanban();
   else if(v==='table') renderTable();
   else if(v==='process') renderProcess();
@@ -1475,15 +1809,15 @@ function renderProcess(){
     var rowBg=j.IS_OVERDUE?'background:#fef9f9':'';
 
     return '<tr onclick="openDetail(event,\''+j.JOB_ID+'\')" style="cursor:pointer;'+rowBg+'">'
-      +'<td><small style="color:#4b5563;font-size:10px">'+esc(j.JOB_ID||'')+'</small></td>'
-      +'<td><strong style="font-size:12px">'+esc(j.COMPANY||'')+'</strong></td>'
-      +'<td style="max-width:180px;font-size:12px">'+esc(j.DESCRIPTION||'')+'</td>'
-      +'<td style="font-size:12px">'+(j.QUANTITY||'-')+'</td>'
-      +'<td style="font-size:12px">'+(j.SUPERVISOR||'—')+'</td>'
-      +'<td style="'+dodSty+';font-size:11px">'+dodT+'</td>'
-      +'<td>'+curBdg+'</td>'
-      +'<td>'+pipe+'</td>'
-      +'<td><span class="stt stt-'+sid+'">'+(j.STATUS||'')+'</span></td>'
+      +'<td data-label="Job ID"><small style="color:#4b5563;font-size:10px">'+esc(j.JOB_ID||'')+'</small></td>'
+      +'<td data-label="Company"><strong style="font-size:12px">'+esc(j.COMPANY||'')+'</strong></td>'
+      +'<td data-label="Description" style="max-width:180px;font-size:12px">'+esc(j.DESCRIPTION||'')+'</td>'
+      +'<td data-label="Qty" style="font-size:12px">'+(j.QUANTITY||'-')+'</td>'
+      +'<td data-label="Supervisor" style="font-size:12px">'+(j.SUPERVISOR||'—')+'</td>'
+      +'<td data-label="DOD" style="'+dodSty+';font-size:11px">'+dodT+'</td>'
+      +'<td data-label="Stage">'+curBdg+'</td>'
+      +'<td data-label="Pipeline">'+pipe+'</td>'
+      +'<td data-label="Status"><span class="stt stt-'+sid+'">'+(j.STATUS||'')+'</span></td>'
       +'</tr>';
   }).join('');
 }
@@ -1673,6 +2007,8 @@ function openDetail(e, jid){
 
   id('dpBody').innerHTML=body;
   id('detailPanel').classList.add('open');
+  id('dpOverlay').classList.add('on');
+  if(window.innerWidth<=640) document.body.style.overflow='hidden';
 }
 
 function drow(lbl,val,sty){
@@ -1680,7 +2016,11 @@ function drow(lbl,val,sty){
     +'<div class="dp-val" style="'+(sty||'')+'">'+esc(String(val||'-'))+'</div></div>';
 }
 
-function closeDetail(){ id('detailPanel').classList.remove('open'); }
+function closeDetail(){
+  id('detailPanel').classList.remove('open');
+  id('dpOverlay').classList.remove('on');
+  document.body.style.overflow='';
+}
 
 // ── Stage change ───────────────────────────────────────
 // Stages that do NOT trigger IN PROGRESS (pre-production only)
@@ -1918,15 +2258,15 @@ function renderOutsource(){
       ?(S.role!=='customer'?'<button class="btn btn-sm" style="background:#f0fdf4;color:#15803d;border:1px solid #86efac;font-size:11px" onclick="openRCV('+r.id+',\''+esc(r.vendor_name||'')+'\',\''+esc(r.stage)+'\')">✅ Received</button>':'—')
       :(r.date_received||'—');
     return '<tr onclick="if(event.target.tagName!==\'BUTTON\')openDetail(event,\''+r.job_id+'\')" style="cursor:pointer">'
-      +'<td><small style="color:#4b5563;font-size:10px">'+esc(r.job_id)+'</small></td>'
-      +'<td style="font-size:12px">'+co+'</td>'
-      +'<td style="font-size:12px;max-width:160px">'+desc+'</td>'
-      +'<td style="font-size:12px">'+qty+'</td>'
-      +'<td><span style="background:#fff7ed;color:#b45309;border:1px solid #f59e0b;padding:2px 7px;border-radius:5px;font-size:11px;font-weight:700">'+esc(r.stage)+'</span></td>'
-      +'<td style="font-size:12px;font-weight:600">'+esc(r.vendor_name||'—')+'</td>'
-      +'<td style="font-size:11px;color:#374151">'+sent+'</td>'
-      +'<td style="font-size:11px;color:'+(daysOut!=='—'&&parseInt(daysOut)>7?'#dc2626':'#374151')+'">'+daysOut+'</td>'
-      +'<td>'+lastCol+'</td>'
+      +'<td data-label="Job ID"><small style="color:#4b5563;font-size:10px">'+esc(r.job_id)+'</small></td>'
+      +'<td data-label="Company" style="font-size:12px">'+co+'</td>'
+      +'<td data-label="Description" style="font-size:12px;max-width:160px">'+desc+'</td>'
+      +'<td data-label="Qty" style="font-size:12px">'+qty+'</td>'
+      +'<td data-label="Stage"><span style="background:#fff7ed;color:#b45309;border:1px solid #f59e0b;padding:2px 7px;border-radius:5px;font-size:11px;font-weight:700">'+esc(r.stage)+'</span></td>'
+      +'<td data-label="Vendor" style="font-size:12px;font-weight:600">'+esc(r.vendor_name||'—')+'</td>'
+      +'<td data-label="Sent" style="font-size:11px;color:#374151">'+sent+'</td>'
+      +'<td data-label="Days Out" style="font-size:11px;color:'+(daysOut!=='—'&&parseInt(daysOut)>7?'#dc2626':'#374151')+'">'+daysOut+'</td>'
+      +'<td data-label="Action">'+lastCol+'</td>'
       +'</tr>';
   }).join('');
 }
@@ -2578,8 +2918,18 @@ async function refreshSupervisors(){
   buildFilters(); renderSMTable();
 }
 
-document.addEventListener('keydown',function(e){if(e.key==='Escape'){closeDetail();closeModal();closePM();closeCM();closeCE();closeGD();closeSM();closeOVM();closeOVE();closeSO();closeRCV();closeRej();}});
+document.addEventListener('keydown',function(e){if(e.key==='Escape'){closeDetail();closeModal();closePM();closeCM();closeCE();closeGD();closeSM();closeOVM();closeOVE();closeSO();closeRCV();closeRej();closeAdminDrawer();}});
 setInterval(function(){if(S.role)loadData();},180000);
+
+// ── Admin Drawer (mobile) ────────────────────────────────
+function openAdminDrawer(){
+  id('adminDrawer').classList.add('on');
+  document.body.style.overflow='hidden';
+}
+function closeAdminDrawer(){
+  id('adminDrawer').classList.remove('on');
+  document.body.style.overflow='';
+}
 
 // ── Session restore on page load ───────────────────────
 (function(){
@@ -2587,6 +2937,13 @@ setInterval(function(){if(S.role)loadData();},180000);
   var role=sessionStorage.getItem('nte_role');
   if(token&&role){S.token=token;afterLogin(role);}
 })();
+
+// ── Service Worker registration ────────────────────────
+if('serviceWorker' in navigator){
+  window.addEventListener('load',function(){
+    navigator.serviceWorker.register('/sw.js').catch(function(){});
+  });
+}
 </script>
 </body>
 </html>
